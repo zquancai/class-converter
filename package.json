@@ -1,0 +1,36 @@
+{
+  "name": "class-converter",
+  "version": "0.0.2",
+  "description": "class converter",
+  "main": "index.ts",
+  "scripts": {
+    "test": "npm run test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zquancai/class-converter.git"
+  },
+  "keywords": [
+    "class",
+    "json",
+    "mapper",
+    "converter",
+    "transformer",
+    "typescript"
+  ],
+  "author": "zquancai@126.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/zquancai/class-converter/issues"
+  },
+  "homepage": "https://github.com/zquancai/class-converter#readme",
+  "dependencies": {
+    "@types/lodash": "^4.14.149",
+    "lodash": "^4.17.15",
+    "reflect-metadata": "^0.1.13"
+  },
+  "devDependencies": {
+    "moment": "^2.24.0",
+    "typescript": "^3.7.3"
+  }
+}

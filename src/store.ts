@@ -20,7 +20,7 @@ export const setStore = (target: Function, options: StoreItemOptions) => {
   let value: StoreItemType = targetStore.has(key) ? targetStore.get(key) : {};
   value = {
     ...value,
-    ...rest
+    ...rest,
   };
   targetStore.set(key, value);
   store.set(storeKey, targetStore);

@@ -12,7 +12,7 @@ export type OriginalStoreItemType = StoreItemType & {
 const objectToClass = <T>(
   originalKeyStore: Map<string, OriginalStoreItemType[]>,
   jsonObj: { [key: string]: any },
-  Clazz: BasicClass<T>
+  Clazz: BasicClass<T>,
 ): T => {
   const instance: any = new Clazz();
   originalKeyStore.forEach((propertiesOption: OriginalStoreItemType[], originalKey) => {
@@ -26,6 +26,7 @@ const objectToClass = <T>(
       }
       let value = originalValue;
       if (targetClass) {
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
         value = toClass(originalValue, targetClass);
       }
       instance[key] = deserializer(value, instance, jsonObj);
@@ -34,25 +35,27 @@ const objectToClass = <T>(
   return instance;
 };
 
-export const toClass = <T>(rawJson: object | object[], Clazz: BasicClass<T>): T | T[] => {
+// export function toClass<T>(rawJson: object, Clazz: BasicClass<T>): T;
+// export function toClass<T>(rawJson: object[], Clazz: BasicClass<T>): T[];
+export function toClass<T>(rawJson: object | object[], Clazz: BasicClass<T>): T | T[] {
   const targetStore = store.get(Clazz);
   if (!targetStore) {
     return rawJson as any;
   }
   const originalKeyStore = new Map<string, OriginalStoreItemType[]>();
-  targetStore.forEach((value: StoreItemType, key: string) => {
+  targetStore.forEach((storeItem: StoreItemType, key: string) => {
     const item = {
       key,
       deserializer: (value: any) => value,
-      ...value
+      ...storeItem,
     };
     originalKeyStore.set(
-      value.originalKey,
-      originalKeyStore.has(value.originalKey) ? [...originalKeyStore.get(value.originalKey), item] : [item]
+      storeItem.originalKey,
+      originalKeyStore.has(storeItem.originalKey) ? [...originalKeyStore.get(storeItem.originalKey), item] : [item],
     );
   });
   if (Array.isArray(rawJson)) {
     return rawJson.map(item => objectToClass<T>(originalKeyStore, item, Clazz));
   }
   return objectToClass<T>(originalKeyStore, rawJson as object, Clazz);
-};
+}

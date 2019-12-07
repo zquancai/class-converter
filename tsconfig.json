@@ -3,6 +3,7 @@
     "outDir": "build/es5",
     "target": "es5",
     "module": "commonjs",
+    "resolveJsonModule": true,
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,

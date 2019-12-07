@@ -4,7 +4,10 @@
   "description": "class converter",
   "main": "index.ts",
   "scripts": {
-    "test": "npm run test"
+    "test": "mocha -r ts-node/register tests/**/*.spec.ts",
+    "prettier": "prettier --write 'src/**/*.{ts,tsx,js,jsx}'",
+    "lint": "eslint --ext .ts src",
+    "lint-fix": "eslint --ext .ts  src --fix"
   },
   "repository": {
     "type": "git",
@@ -30,7 +33,21 @@
     "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
+    "@types/chai": "^4.2.6",
+    "@types/mocha": "^5.2.7",
+    "@typescript-eslint/eslint-plugin": "^2.0.0",
+    "@typescript-eslint/parser": "^2.0.0",
+    "assert": "^2.0.0",
+    "chai": "^4.2.0",
+    "eslint": "^6.7.2",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-config-prettier": "^6.7.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-prettier": "^3.1.1",
+    "mocha": "^6.2.2",
     "moment": "^2.24.0",
+    "prettier": "^1.19.1",
+    "ts-node": "^8.5.4",
     "typescript": "^3.7.3"
   }
 }

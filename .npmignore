@@ -1,2 +1,5 @@
 .gitignore
+.prettierrc
+.eslintrc
+
 node_modules

@@ -35,13 +35,7 @@ const objectToClass = <T>(
   return instance;
 };
 
-// export function toClass<T>(rawJson: object, Clazz: BasicClass<T>): T;
-// export function toClass<T>(rawJson: object[], Clazz: BasicClass<T>): T[];
-export function toClass<T>(rawJson: object | object[], Clazz: BasicClass<T>): T | T[] {
-  const targetStore = store.get(Clazz);
-  if (!targetStore) {
-    return rawJson as any;
-  }
+const getOriginalKetStore = <T>(targetStore: Map<string, StoreItemType>) => {
   const originalKeyStore = new Map<string, OriginalStoreItemType[]>();
   targetStore.forEach((storeItem: StoreItemType, key: string) => {
     const item = {
@@ -54,8 +48,21 @@ export function toClass<T>(rawJson: object | object[], Clazz: BasicClass<T>): T 
       originalKeyStore.has(storeItem.originalKey) ? [...originalKeyStore.get(storeItem.originalKey), item] : [item],
     );
   });
-  if (Array.isArray(rawJson)) {
-    return rawJson.map(item => objectToClass<T>(originalKeyStore, item, Clazz));
+  return originalKeyStore;
+};
+
+export const toClasses = <T>(rawJson: { [key: string]: any }[], Clazz: BasicClass<T>): T[] => {
+  const targetStore = store.get(Clazz);
+  if (!targetStore) {
+    return rawJson as any;
   }
-  return objectToClass<T>(originalKeyStore, rawJson as object, Clazz);
-}
+  return rawJson.map((item: object) => objectToClass<T>(getOriginalKetStore(targetStore), item, Clazz));
+};
+
+export const toClass = <T>(rawJson: { [key: string]: any }, Clazz: BasicClass<T>): T => {
+  const targetStore = store.get(Clazz);
+  if (!targetStore) {
+    return rawJson as any;
+  }
+  return objectToClass<T>(getOriginalKetStore(targetStore), rawJson as object, Clazz);
+};

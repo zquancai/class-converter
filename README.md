@@ -37,13 +37,14 @@ npm install class-converter --save
 
 # Methods
 
-#### toClass(raw: any | any[], clazzType)
+### toClass(raw: { [key: stirng]: any }, clazzType) / toClasses(raw: { [key: stirng]: any }[], clazzType)
 convert a plain object to class
 ```js
 const userModel = toClass(userRaw, UserModel);
+const userModels = toClasses(userRaws, UserModel);
 ```
 
-#### property(key: string, clazzType?: any, optional = false)
+### property(key: string, clazzType?: any, optional = false)
 ```js
 import { property, deserialize } from 'class-converter';
 import moment from 'moment';
@@ -72,7 +73,7 @@ export default class UserModel {
 
 ```
 
-#### deserialize(deserializer: (value: any, instance: any, origin: any) => any
+### deserialize(deserializer: (value: any, instance: any, origin: any) => any
 ```js
 import { property, deserialize } from 'class-converter';
 

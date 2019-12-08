@@ -1,6 +1,6 @@
 // eslint-disable-next-line max-classes-per-file
 import assert from 'assert';
-import { property, deserialize, toClass } from '../src';
+import { property, deserialize, toClass, toClasses } from '../lib';
 import user from './fixtures/user.json';
 import users from './fixtures/users.json';
 import pkg from './fixtures/package.json';
@@ -48,7 +48,7 @@ describe('toClass', () => {
   });
 
   it('should return array of UserModel instance', () => {
-    const userModels = toClass(users, UserModel) as UserModel[];
+    const userModels = toClasses(users, UserModel);
     userModels.forEach(u => {
       assert(u instanceof UserModel);
     });
@@ -71,7 +71,7 @@ describe('toClass', () => {
   });
 
   it('should return PackageModel instance', () => {
-    const packageModel = toClass(pkg, PackageModel) as PackageModel;
+    const packageModel = toClass(pkg, PackageModel);
     assert(packageModel instanceof PackageModel);
     assert(packageModel.creator instanceof UserModel);
     assert.deepEqual(packageModel, {

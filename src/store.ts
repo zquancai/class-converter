@@ -1,17 +1,6 @@
+import { StoreItemOptions, StoreItemType } from './typing';
+
 const store = new Map<Function, Map<string, any>>();
-
-export type StoreItemType = {
-  originalKey?: string;
-  targetClass?: { new (...args: any[]): any };
-  serializer?: (value: any, instance: any) => any;
-  deserializer?: (value: any, instance: any, origin: any) => any;
-  autoTypeDetection?: boolean;
-  optional?: boolean;
-};
-
-export type StoreItemOptions = StoreItemType & {
-  key: string;
-};
 
 export const setStore = (target: Function, options: StoreItemOptions) => {
   const { key, ...rest } = options;

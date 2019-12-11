@@ -24,7 +24,6 @@ const userModel = toClass(userRaw, UserModel);
 //   id: 1234,
 //   name: 'name',
 // }
-
 ```
 
 # get start
@@ -37,19 +36,31 @@ npm install class-converter --save
 
 # Methods
 
-### toClass(raw: { [key: stirng]: any }, clazzType) / toClasses(raw: { [key: stirng]: any }[], clazzType)
+### toClass(raw: { [key: stirng]: any }, clazzType: ClassType) / toClasses(raw: { [key: stirng]: any }[], clazzType: ClassType)
+
 convert a plain object to class
+
 ```js
 const userModel = toClass(userRaw, UserModel);
 const userModels = toClasses(userRaws, UserModel);
 ```
 
+### toPlain(instance: ClassType | { [key: stirng]: any }, clazzType: ClassType) / toPlains(instances: ClassType | { [key: stirng]: any }[], clazzType: ClassType)
+
+convert a plain object to class
+
+```js
+const userRaw = toClass(userModel, UserModel);
+const userRaws = toClasses(userModels, UserModel);
+```
+
 ### property(key: string, clazzType?: any, optional = false)
+
 ```js
 import { property, deserialize } from 'class-converter';
 import moment from 'moment';
 
-export default class UserEduModel {
+class UserEduModel {
   @property('i')
   id: number;
 
@@ -57,7 +68,7 @@ export default class UserEduModel {
   name: string;
 }
 
-export default class UserModel {
+class UserModel {
   @property('i')
   id: number;
 
@@ -71,13 +82,18 @@ export default class UserModel {
   edu: UserEduModel;
 }
 
+export class AdminUserModel extends UserModel {
+  @property('r')
+  role: number;
+}
 ```
 
 ### deserialize(deserializer: (value: any, instance: any, origin: any) => any
+
 ```js
 import { property, deserialize } from 'class-converter';
 
-export default class UserModel {
+class UserModel {
   @property('i')
   id: number;
 
@@ -93,7 +109,6 @@ export default class UserModel {
 const user = {
   id: 1234,
   name: 'name',
-  mail: 'name@xxx.com'
+  mail: 'name@xxx.com',
 };
-
 ```

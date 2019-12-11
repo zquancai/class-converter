@@ -1,11 +1,24 @@
 // eslint-disable-next-line max-classes-per-file
 import assert from 'assert';
-import { property, deserialize, toClass, toClasses } from '../lib';
+import { property, deserialize, toClass, toClasses } from '../src';
 import user from './fixtures/user.json';
 import users from './fixtures/users.json';
 import pkg from './fixtures/package.json';
 
-class UserModel {
+abstract class AvatarModel {
+  @deserialize((value: number) => value * 10)
+  @property('i')
+  id: number;
+
+  @property('at')
+  avatar: string;
+
+  @deserialize((value: string) => `https://cdn.com/avatar/${value}.png`)
+  @property('at')
+  avatarUrl: string;
+}
+
+class UserModel extends AvatarModel {
   @property('i')
   id: number;
 
@@ -14,13 +27,6 @@ class UserModel {
 
   @property('e')
   email: string;
-
-  @property('at')
-  avatar: string;
-
-  @deserialize((value: string) => `https://cdn.com/avatar/${value}.png`)
-  @property('at')
-  avatarUrl: string;
 }
 
 class PackageModel {
@@ -34,7 +40,7 @@ class PackageModel {
   creator: UserModel;
 }
 
-describe('toClass', () => {
+describe('toClass / toClasses', () => {
   it('should return UserModel instance', () => {
     const userModel = toClass(user, UserModel);
     assert(userModel instanceof UserModel);

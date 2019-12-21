@@ -26,12 +26,10 @@ const userModel = toClass(userRaw, UserModel);
 // }
 ```
 
-# get start
-
-## For browser
+# Installation
 
 ```bash
-npm install class-converter --save
+npm install class-converter npm install --save
 ```
 
 # Methods
@@ -47,7 +45,7 @@ const userModels = toClasses(userRaws, UserModel);
 
 ### toPlain(instance: ClassType | { [key: stirng]: any }, clazzType: ClassType) / toPlains(instances: ClassType | { [key: stirng]: any }[], clazzType: ClassType)
 
-convert a plain object to class
+convert a plain/class object to rawPlain
 
 ```js
 const userRaw = toClass(userModel, UserModel);
@@ -85,6 +83,35 @@ class UserModel {
 export class AdminUserModel extends UserModel {
   @property('r')
   role: number;
+}
+```
+
+### array(dimension?: 1 | 2)
+
+- [optional]dimension dimension of the array, default 1
+
+```js
+import { property, deserialize, array } from 'class-converter';
+import moment from 'moment';
+
+class UserModel {
+  @property('i')
+  id: number;
+
+  @property('n')
+  name: string;
+}
+
+class DepartmentModel {
+  @property('i')
+  id: number;
+
+  @property('n')
+  name: string;
+
+  @array()
+  @property('e', UserModel)
+  employees: UserModel[];
 }
 ```
 

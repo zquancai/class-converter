@@ -1,3 +1,4 @@
+import { isArray } from 'lodash';
 import store from './store';
 import { JosnType, BasicClass, StoreItemType } from './typing';
 
@@ -5,7 +6,7 @@ const classToObject = <T>(keyStore: Map<string, StoreItemType>, instance: JosnTy
   const obj: JosnType = {};
   keyStore.forEach((propertiesOption: StoreItemType, key: keyof JosnType) => {
     const instanceValue = instance[key];
-    const { originalKey, serializer, targetClass, optional } = propertiesOption;
+    const { originalKey, serializer, targetClass, optional, array, dimension } = propertiesOption;
     if (instanceValue === undefined) {
       if (!optional) {
         throw new Error(`Cannot map '${originalKey}' to ${Clazz.name}.${key}, property '${originalKey}' not found`);
@@ -14,8 +15,18 @@ const classToObject = <T>(keyStore: Map<string, StoreItemType>, instance: JosnTy
     }
     let value = instanceValue;
     if (targetClass) {
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      value = toPlain(instanceValue, targetClass);
+      if (array) {
+        if (dimension === 1) {
+          // eslint-disable-next-line @typescript-eslint/no-use-before-define
+          value = toPlains(instanceValue, targetClass);
+        } else {
+          // eslint-disable-next-line @typescript-eslint/no-use-before-define
+          value = instanceValue.map((cur: any) => toPlains(cur, targetClass));
+        }
+      } else {
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        value = toPlain(instanceValue, targetClass);
+      }
     }
     obj[originalKey] = serializer ? serializer(value, instance, obj) : value;
   });
@@ -40,6 +51,9 @@ const getKeyStore = <T>(Clazz: BasicClass<T>) => {
 };
 
 export const toPlains = <T>(instances: (T | JosnType)[], Clazz: BasicClass<T>): any[] => {
+  if (!isArray(instances)) {
+    throw new Error(`${Clazz} instances must be a array`);
+  }
   return instances.map((item: JosnType) => classToObject<T>(getKeyStore(Clazz), item, Clazz));
 };
 

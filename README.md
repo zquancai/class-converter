@@ -54,6 +54,8 @@ const userRaws = toClasses(userModels, UserModel);
 
 ### property(key: string, clazzType?: any, optional = false)
 
+convert a original key to your customized key, like `n => name`
+
 ```js
 import { property, deserialize } from 'class-converter';
 import moment from 'moment';
@@ -117,8 +119,10 @@ class DepartmentModel {
 
 ### deserialize(deserializer: (value: any, instance: any, origin: any) => any
 
+convert original value to customized data, it only be used when use toClass/toClasses function
+
 ```js
-import { property, deserialize } from 'class-converter';
+import { property, deserialize, toClass } from 'class-converter';
 
 class UserModel {
   @property('i')
@@ -128,14 +132,47 @@ class UserModel {
   name: string;
 
   @deserialize((value: string) => `${value}@xxx.com`)
-  @property('n')
+  @property('m')
   mail: string;
 }
 
+const user = toClass(
+  {
+    i: 1234,
+    n: 'name',
+    m: 'mail',
+  },
+  UserModel,
+);
+
 // you will get like this
-const user = {
-  id: 1234,
-  name: 'name',
-  mail: 'name@xxx.com',
-};
+// {
+//   id: 1234,
+//   name: 'name',
+//   mail: 'mail@xxx.com',
+// };
+```
+
+### serialize(serializer: (value: any, instance: any, origin: any) => any
+
+convert customized value to original value, it only be used when use toPlain/toPlains function
+
+```js
+import { property, deserialize, serialize, toPlain } from 'class-converter';
+
+class UserModel {
+  @serialize((mail: string) => mail.replace('@xxx.com', ''))
+  @deserialize((value: string) => `${value}@xxx.com`)
+  @property('e')
+  mail: string;
+}
+
+const user = toPlain({
+  mail: 'mail@xxx.com',
+}, UserModel);
+
+// you will get like this
+// const user = {
+//   e: 'mail@xxx.com',
+// };
 ```

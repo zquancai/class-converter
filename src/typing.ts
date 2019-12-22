@@ -5,6 +5,8 @@ export type StoreItemType = {
   deserializer?: (value: any, instance: any, origin: any) => any;
   autoTypeDetection?: boolean;
   optional?: boolean;
+  array?: boolean;
+  dimension?: DimensionRange;
 };
 
 export type StoreItemOptions = StoreItemType & {
@@ -20,3 +22,5 @@ export type JosnType = { [key: string]: any };
 export type OriginalStoreItemType = StoreItemType & {
   key: string;
 };
+
+export type DimensionRange = 1 | 2;

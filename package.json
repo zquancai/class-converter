@@ -1,6 +1,6 @@
 {
   "name": "class-converter",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "class converter",
   "main": "lib/index.js",
   "scripts": {
@@ -36,8 +36,7 @@
   "homepage": "https://github.com/zquancai/class-converter#readme",
   "dependencies": {
     "@types/lodash": "^4.14.149",
-    "lodash": "^4.17.15",
-    "reflect-metadata": "^0.1.13"
+    "lodash": "^4.17.15"
   },
   "devDependencies": {
     "@types/chai": "^4.2.6",

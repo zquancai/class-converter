@@ -1,9 +1,10 @@
 // eslint-disable-next-line max-classes-per-file
 import assert from 'assert';
-import { property, deserialize, toClass, toClasses } from '../src';
+import { property, deserialize, toClass, toClasses, array } from '../src';
 import user from './fixtures/user.json';
 import users from './fixtures/users.json';
-import pkg from './fixtures/package.json';
+import pkg from './fixtures/pkg.json';
+import department from './fixtures/department.json';
 
 abstract class AvatarModel {
   @deserialize((value: number) => value * 10)
@@ -38,6 +39,18 @@ class PackageModel {
 
   @property('u', UserModel)
   creator: UserModel;
+}
+
+class DepartmentModel {
+  @property('i')
+  id: number;
+
+  @property('n')
+  name: string;
+
+  @array()
+  @property('e', UserModel)
+  employees: UserModel[];
 }
 
 describe('toClass / toClasses', () => {
@@ -90,6 +103,34 @@ describe('toClass / toClasses', () => {
         avatar: '1a1b1b3b4c34d234',
         avatarUrl: 'https://cdn.com/avatar/1a1b1b3b4c34d234.png',
       },
+    });
+  });
+
+  it('should return DepartmentModel instance', () => {
+    const departmentModel = toClass(department, DepartmentModel);
+    assert(departmentModel instanceof DepartmentModel);
+    departmentModel.employees.forEach(e => {
+      assert(e instanceof UserModel);
+    });
+    assert.deepEqual(departmentModel, {
+      id: 10000,
+      name: 'department',
+      employees: [
+        {
+          id: 20001,
+          name: 'name1',
+          email: 'email1@xx.com',
+          avatar: '1a1b1b3b4c34d231',
+          avatarUrl: 'https://cdn.com/avatar/1a1b1b3b4c34d231.png',
+        },
+        {
+          id: 20002,
+          name: 'name2',
+          email: 'email2@xx.com',
+          avatar: '1a1b1b3b4c34d232',
+          avatarUrl: 'https://cdn.com/avatar/1a1b1b3b4c34d232.png',
+        },
+      ],
     });
   });
 });

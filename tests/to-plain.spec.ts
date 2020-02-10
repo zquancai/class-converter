@@ -5,6 +5,7 @@ import user from './fixtures/user.json';
 import users from './fixtures/users.json';
 import pkg from './fixtures/pkg.json';
 import department from './fixtures/department.json';
+import empty from './fixtures/empty.json';
 
 class AvatarModel {
   @property('at')
@@ -48,6 +49,23 @@ class DepartmentModel {
   @array()
   @property('e', UserModel)
   employees: UserModel[];
+}
+
+class EmptyModel {
+  @property('e')
+  title: string;
+
+  @property('t')
+  timeStamp: number;
+
+  @property('u')
+  user: UserModel;
+
+  @property('n', null, true)
+  name = 'default-name';
+
+  @property('m', null, true)
+  mode: number;
 }
 
 describe('toPlain / toPlains', () => {
@@ -131,5 +149,17 @@ describe('toPlain / toPlains', () => {
       DepartmentModel,
     );
     assert.deepEqual(department, departmentRaw);
+  });
+
+  it('should filter value', () => {
+    const emptyRaw = toPlain(
+      {
+        title: 'empty',
+        user: null,
+        timeStamp: 1581314281152,
+      },
+      EmptyModel,
+    );
+    assert.deepEqual(empty, emptyRaw);
   });
 });

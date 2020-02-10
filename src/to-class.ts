@@ -18,6 +18,10 @@ const objectToClass = <T>(
           }
           return;
         }
+        if (originalValue === null) {
+          instance[key] = deserializer ? deserializer(originalValue, instance, jsonObj) : originalValue;
+          return;
+        }
         let value = originalValue;
         if (targetClass) {
           if (array) {
@@ -68,7 +72,7 @@ const getOriginalKetStore = <T>(Clazz: BasicClass<T>) => {
 
 export const toClasses = <T>(rawJson: JosnType[], Clazz: BasicClass<T>): T[] => {
   if (!isArray(rawJson)) {
-    throw new Error(`${rawJson} instances must be a array`);
+    throw new Error(`rawJson ${rawJson} must be a array`);
   }
   return rawJson.map((item: object) => objectToClass<T>(getOriginalKetStore(Clazz), item, Clazz));
 };

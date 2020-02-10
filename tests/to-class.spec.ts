@@ -5,6 +5,7 @@ import user from './fixtures/user.json';
 import users from './fixtures/users.json';
 import pkg from './fixtures/pkg.json';
 import department from './fixtures/department.json';
+import empty from './fixtures/empty.json';
 
 abstract class AvatarModel {
   @deserialize((value: number) => value * 10)
@@ -51,6 +52,23 @@ class DepartmentModel {
   @array()
   @property('e', UserModel)
   employees: UserModel[];
+}
+
+class EmptyModel {
+  @property('e')
+  title: string;
+
+  @property('t')
+  timeStamp: number;
+
+  @property('u')
+  user: UserModel;
+
+  @property('n', null, true)
+  name = 'default-name';
+
+  @property('m', null, true)
+  mode: number;
 }
 
 describe('toClass / toClasses', () => {
@@ -131,6 +149,17 @@ describe('toClass / toClasses', () => {
           avatarUrl: 'https://cdn.com/avatar/1a1b1b3b4c34d232.png',
         },
       ],
+    });
+  });
+
+  it('should filter value', () => {
+    const emptyModel = toClass(empty, EmptyModel);
+    assert(emptyModel instanceof EmptyModel);
+    assert.deepEqual(emptyModel, {
+      title: 'empty',
+      user: null,
+      name: 'default-name',
+      timeStamp: 1581314281152,
     });
   });
 });

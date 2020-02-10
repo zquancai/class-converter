@@ -13,6 +13,10 @@ const classToObject = <T>(keyStore: Map<string, StoreItemType>, instance: JosnTy
       }
       return;
     }
+    if (instanceValue === null) {
+      obj[originalKey] = serializer ? serializer(instanceValue, instance, obj) : instanceValue;
+      return;
+    }
     let value = instanceValue;
     if (targetClass) {
       if (array) {

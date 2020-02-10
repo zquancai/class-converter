@@ -48,8 +48,8 @@ const userModels = toClasses(userRaws, UserModel);
 convert a plain/class object to rawPlain
 
 ```js
-const userRaw = toClass(userModel, UserModel);
-const userRaws = toClasses(userModels, UserModel);
+const userRaw = toPlain(userModel, UserModel);
+const userRaws = toPlains(userModels, UserModel);
 ```
 
 ### property(key: string, clazzType?: any, optional = false)

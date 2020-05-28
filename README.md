@@ -1,20 +1,22 @@
 # class-converter
 
-class-converter is used to convert a plain object to a class.
+class-converter is used to convert a plain object to a class instance and the reverse process.
 There is a simple example:
 
-```js
+```ts
+import { property, toClass } from 'class-convert';
+
 class UserModel {
   @property('i')
   id: number;
 
-  @property('n')
+  @property()
   name: string;
 }
 
 const userRaw = {
   i: 1234,
-  n: 'name',
+  name: 'name',
 };
 
 // use toClass to convert plain object to class
@@ -29,150 +31,294 @@ const userModel = toClass(userRaw, UserModel);
 # Installation
 
 ```bash
-npm install class-converter npm install --save
+npm i class-converter --save
 ```
 
 # Methods
 
-### toClass(raw: { [key: stirng]: any }, clazzType: ClassType) / toClasses(raw: { [key: stirng]: any }[], clazzType: ClassType)
+## toClass(raw, clazzType, options?) / toClasses(raws, clazzType, options?)
 
-convert a plain object to class
+Convert an object to a class instance
 
-```js
+- `raw` / `raws` `<Object|Array<Object>>` An raw `object` or an array of raw `object`
+- `clazzType` `<Class>` Constructor of the target class
+- `options?` `<Object>` convert config
+  - `ignoreDeserializer` `<Boolean>` don't call deserializer(@deserialize) if true
+  - `ignoreBeforeDeserializer` `<Boolean>` don't call beforeDeserializer(@beforeDeserialize) if true
+
+Example:
+
+```ts
+const userRaw = {
+  i: 1234,
+  name: 'name',
+};
+const userRaws = [
+  {
+    i: 1000,
+    name: 'name1',
+  },
+  {
+    i: 2000,
+    name: 'name2',
+  },
+];
 const userModel = toClass(userRaw, UserModel);
 const userModels = toClasses(userRaws, UserModel);
 ```
 
-### toPlain(instance: ClassType | { [key: stirng]: any }, clazzType: ClassType) / toPlains(instances: ClassType | { [key: stirng]: any }[], clazzType: ClassType)
+## toPlain(instance, clazzType, options?) / toPlains(instances, clazzType, options?)
 
-convert a plain/class object to rawPlain
+convert an object or a class instance to a raw object
 
-```js
+- `instance` / `instances` `<Object|Array<Object>>` An `object|instance` or array of `object|instance`
+- `clazzType` `<Class>` Constructor of the target class
+- `options?` `<Object>` convert config
+  - `ignoreSerializer` `<Boolean>` don't call serializer(@serialize) if true
+  - `ignoreAfterSerializer` `<Boolean>` don't call afterSerializer(@afterSerialize) if true
+
+Example:
+
+```ts
+const userModel = {
+  id: 1234,
+  name: 'name',
+};
+const userModels = [
+  {
+    id: 1000,
+    name: 'name1',
+  },
+  {
+    id: 2000,
+    name: 'name2',
+  },
+];
 const userRaw = toPlain(userModel, UserModel);
 const userRaws = toPlains(userModels, UserModel);
 ```
 
-### property(key: string, clazzType?: any, optional = false)
+## Property Decorators
 
-convert a original key to your customized key, like `n => name`
+The order in which these decorator's are invoked during the transformation:
 
-```js
-import { property, deserialize } from 'class-converter';
-import moment from 'moment';
+- `toClass/toClasses`: beforeDeserializer => typed(convert to a instance) => deserializer
+- `toPlain/toPlains`: serializer => typed(convert to a object) => afterSerializer
 
-class UserEduModel {
+#### property(originalKey?, clazzType?, optional = false)
+
+Convert a original key to your customized key, like `n => name`
+
+- `originalKey` `<string>` A key of a raw object, default current class key
+- `clazzType` `<Class>` Constructor its value to a target class instance automatically
+- `optional` `<Boolean>` Optional in a raw object
+
+Example:
+
+```ts
+class PropertyModel {
   @property('i')
   id: number;
 
-  @property('n')
-  name: string;
-}
-
-class UserModel {
-  @property('i')
-  id: number;
-
-  @property('n')
+  @property()
   name: string;
 
-  @property('a', null, false)
-  avatarUrl: string;
+  @property('u', UserModel)
+  user: UserModel;
 
-  @property('e', UserEduModel)
-  edu: UserEduModel;
-}
-
-export class AdminUserModel extends UserModel {
-  @property('r')
-  role: number;
+  @property('t', null, true)
+  timeStamp: number;
 }
 ```
 
-### array(dimension?: 1 | 2)
+### typed(clazzType)
 
-- [optional]dimension dimension of the array, default 1
+Set a target class type to a property, as same as the second parameter of property decorator
 
-```js
-import { property, deserialize, array } from 'class-converter';
-import moment from 'moment';
+- `clazzType` `<Class>` Constructor its value to a target class instance automatically
 
-class UserModel {
-  @property('i')
-  id: number;
+Example:
 
+```ts
+// as same as @property('n', UserModel)
+class TypedModel {
+  @typed(UserModel)
+  @property('u')
+  user: UserModel;
+}
+```
+
+### optional()
+
+Set a optional setting to a property, as same as the third parameter of property decorator
+
+Example:
+
+```ts
+// as same as @property('n', null, true)
+class TypedModel {
+  @optional()
   @property('n')
   name: string;
 }
+```
 
-class DepartmentModel {
-  @property('i')
-  id: number;
+### array(dimension?)
 
-  @property('n')
-  name: string;
+Only support when use `@property` with a clazzType parameter.
 
+- `dimension` `<Number>` dimension of the array, default 1
+
+Example:
+
+```ts
+class ArrayModel {
   @array()
   @property('e', UserModel)
   employees: UserModel[];
 }
 ```
 
-### deserialize(deserializer: (value: any, instance: any, origin: any) => any
+### defaultVal(val?)
 
-convert original value to customized data, it only be used when use toClass/toClasses function
+set a default value to current property
 
-```js
-import { property, deserialize, toClass } from 'class-converter';
+- `val` `<Any>` default value
 
-class UserModel {
+Example:
+
+```ts
+class DefaultValModel {
+  @defaultVal(0)
   @property('i')
   id: number;
+}
+```
 
-  @property('n')
-  name: string;
+### beforeDeserialize(beforeDeserializer, disallowIgnoreBeforeDeserializer?)
 
+Convert original value to a target form data, it happened before deserializer
+
+- `beforeDeserializer` `<(value: any, instance: any, origin: any) => any>`
+  - `value` `<Any>` The value corresponding to the current key in a raw object
+  - `instance` `<Instance>` An instance(half-baked) of current class
+  - `origin` `<Object>` A raw object
+- `disallowIgnoreBeforeDeserializer` `<Boolean>` Force call beforeDeserializer(@beforeDeserialize) when call `toClass` if true, default false
+
+Example:
+
+```ts
+class BeforeDeserializeModel {
+  @beforeDeserialize((value: any) => JSON.parse(value))
+  @property('m')
+  mail: object;
+}
+
+toClass(
+  {
+    m: '{"id":123}',
+  },
+  BeforeDeserializeModel,
+);
+
+// you will get like this
+{
+  mail: { id: 123 },
+};
+```
+
+### deserialize(deserializer, disallowIgnoreDeserializer?)
+
+Deserialize original value to customized data, it only support when use `toClass/toClasses`
+
+- `deserializer` `(value: any, instance: any, origin: any) => any`
+  - `value` `<Any>` The value(result of beforeDeserializer) corresponding to the current key in a raw object
+  - `instance` `<Instance>` An instance(half-baked) of current class
+  - `origin` `<Object>` A raw object
+- `disallowIgnoreDeserializer` `<Boolean>` Force call deserializer(@deserialize) when call `toClass` if true, default false
+
+Example:
+
+```ts
+class DeserializeModel {
   @deserialize((value: string) => `${value}@xxx.com`)
   @property('m')
   mail: string;
 }
 
-const user = toClass(
+toClass(
   {
-    i: 1234,
-    n: 'name',
     m: 'mail',
   },
-  UserModel,
+  DeserializeModel,
 );
 
 // you will get like this
-// {
-//   id: 1234,
-//   name: 'name',
-//   mail: 'mail@xxx.com',
-// };
+{
+  mail: 'mail@xxx.com',
+};
 ```
 
-### serialize(serializer: (value: any, instance: any, origin: any) => any
+### serialize(serializer)
 
-convert customized value to original value, it only be used when use toPlain/toPlains function
+Serialize customized value to original value, it only support when use `toPlain/toPlains`
 
-```js
-import { property, deserialize, serialize, toPlain } from 'class-converter';
+- `serializer` `(value: any, instance: any, origin: any) => any`
+  - `value` `<Any>` The value corresponding to the current key in a instance
+  - `instance` `<Instance>` An instance of current class
+  - `origin` `<Object>` A raw object(half-baked)
+- `disallowIgnoreSerializer` `<Boolean>` Force call serializer(@serialize) when call `toPlain` if true, default false
 
-class UserModel {
+Example:
+
+```ts
+class SerializeModel {
   @serialize((mail: string) => mail.replace('@xxx.com', ''))
-  @deserialize((value: string) => `${value}@xxx.com`)
   @property('e')
   mail: string;
 }
 
-const user = toPlain({
-  mail: 'mail@xxx.com',
-}, UserModel);
+toPlain(
+  {
+    mail: 'mail@xxx.com',
+  },
+  SerializeModel,
+);
 
 // you will get like this
-// const user = {
-//   e: 'mail@xxx.com',
-// };
+{
+  e: 'mail@xxx.com',
+};
+```
+
+### afterSerialize(afterSerializer)
+
+Convert a key/value in instance to a target form data, it happened after serializer
+
+- `afterSerializer` `(value: any, instance: any, origin: any) => any`
+  - `value` `<Any>` The value(result of serializer) corresponding to the current key in a instance
+  - `instance` `<Instance>` An instance of current class
+  - `origin` `<Object>` A raw object(half-baked)
+- `disallowIgnoreAfterSerializer` `<Boolean>` Force call afterSerializer(@afterSerialize) when call `toPlain` if true, default false
+
+Example:
+
+```ts
+class AfterSerializeModel {
+  @afterSerialize((mail: string) => JSON.stringify(mail))
+  @property('e')
+  mail: string;
+}
+
+toPlain(
+  {
+    mail: { id: 1000 },
+  },
+  SerializeModel,
+);
+
+// you will get like this
+{
+  e: '{"id":1000}',
+};
 ```

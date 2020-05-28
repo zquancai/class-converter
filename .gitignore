@@ -9,5 +9,7 @@ build
 lib
 es6
 dist
+coverage
+.nyc_output
 
 **/.DS_Store

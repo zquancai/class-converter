@@ -1,7 +1,10 @@
 .gitignore
 .prettierrc
 .eslintrc
+.nycrc
+coverage
 tsconfig.json
 
+.nyc_output
 src
 node_modules

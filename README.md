@@ -28,6 +28,8 @@ const userModel = toClass(userRaw, UserModel);
 // }
 ```
 
+you can see a more complex example [here](example)
+
 # Installation
 
 ```bash
@@ -179,7 +181,7 @@ class ArrayModel {
 }
 ```
 
-### defaultVal(val?)
+### defaultVal(val)
 
 set a default value to current property
 
@@ -195,7 +197,7 @@ class DefaultValModel {
 }
 ```
 
-### beforeDeserialize(beforeDeserializer, disallowIgnoreBeforeDeserializer?)
+### beforeDeserialize(beforeDeserializer, disallowIgnoreBeforeDeserializer = false)
 
 Convert original value to a target form data, it happened before deserializer
 
@@ -227,7 +229,7 @@ toClass(
 };
 ```
 
-### deserialize(deserializer, disallowIgnoreDeserializer?)
+### deserialize(deserializer, disallowIgnoreDeserializer =false)
 
 Deserialize original value to customized data, it only support when use `toClass/toClasses`
 
@@ -259,7 +261,7 @@ toClass(
 };
 ```
 
-### serialize(serializer)
+### serialize(serializer, disallowIgnoreSerializer = false)
 
 Serialize customized value to original value, it only support when use `toPlain/toPlains`
 
@@ -291,7 +293,7 @@ toPlain(
 };
 ```
 
-### afterSerialize(afterSerializer)
+### afterSerialize(afterSerializer, disallowIgnoreAfterSerializer = false)
 
 Convert a key/value in instance to a target form data, it happened after serializer
 
@@ -322,3 +324,11 @@ toPlain(
   e: '{"id":1000}',
 };
 ```
+
+# Tests
+```bash
+npm run test
+```
+
+# License
+[MIT](LICENSE.md)

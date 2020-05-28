@@ -1,165 +1,197 @@
 // eslint-disable-next-line max-classes-per-file
+import { ImportMock } from 'ts-mock-imports';
 import assert from 'assert';
-import { property, deserialize, toPlain, toPlains, serialize, array } from '../src';
-import user from './fixtures/user.json';
-import users from './fixtures/users.json';
-import pkg from './fixtures/pkg.json';
-import department from './fixtures/department.json';
-import empty from './fixtures/empty.json';
+import { toPlain, toPlains } from '../src/to-plain';
+import * as utils from '../src/utils';
 
-class AvatarModel {
-  @property('at')
-  avatar: string;
+describe('to-plain', () => {
+  describe('toPlain && classToObject', () => {
+    class TestModel {}
 
-  @serialize((value: string) => String(value).replace(/https:\/\/cdn.com\/avatar\/([\d\w]+)\.png$/, '$1'))
-  @deserialize((value: string) => `https://cdn.com/avatar/${value}.png`)
-  @property('at')
-  avatarUrl: string;
-}
+    class EducationModel {}
 
-class UserModel extends AvatarModel {
-  @property('i')
-  id: number;
+    class EventModel {}
 
-  @property('n')
-  name: string;
-
-  @property('e')
-  email: string;
-}
-
-class PackageModel {
-  @property('i')
-  id: number;
-
-  @property('n')
-  name: string;
-
-  @property('u', UserModel)
-  creator: UserModel;
-}
-
-class DepartmentModel {
-  @property('i')
-  id: number;
-
-  @property('n')
-  name: string;
-
-  @array()
-  @property('e', UserModel)
-  employees: UserModel[];
-}
-
-class EmptyModel {
-  @property('e')
-  title: string;
-
-  @property('t')
-  timeStamp: number;
-
-  @property('u')
-  user: UserModel;
-
-  @property('n', null, true)
-  name = 'default-name';
-
-  @property('m', null, true)
-  mode: number;
-}
-
-describe('toPlain / toPlains', () => {
-  it('should return userRaw', () => {
-    const userRaw = toPlain(
-      {
-        id: 123456,
-        name: 'user-name',
-        email: 'email@xx.com',
-        avatar: '1a1b1b3b4c34d234',
-        avatarUrl: 'https://cdn.com/avatar/1a1b1b3b4c34d234.png',
-      },
-      UserModel,
-    );
-    assert.deepEqual(userRaw, user);
-  });
-
-  it('should return array of userRaw', () => {
-    const userRaws = toPlains(
-      [
+    it('normal', () => {
+      const mock = ImportMock.mockFunction(utils, 'getKeyStore').callsFake(Clazz => {
+        const keyStore = new Map();
+        if (Clazz === TestModel) {
+          keyStore.set('id', {
+            key: 'id',
+            originalKey: 'i',
+            serializeTarget: true,
+          });
+          keyStore.set('nickName', {
+            key: 'nickName',
+            originalKey: 'nn',
+            optional: true,
+          });
+          keyStore.set('department', {
+            key: 'department',
+            originalKey: 'dp',
+            afterSerializer: (instanceValue: any) => encodeURI(instanceValue),
+            serializer: (instanceValue: any) => JSON.stringify(instanceValue),
+          });
+          keyStore.set('education', {
+            key: 'education',
+            originalKey: 'edu',
+            targetClass: EducationModel,
+          });
+          keyStore.set('events', {
+            key: 'events',
+            array: true,
+            dimension: 1,
+            originalKey: 'e',
+            targetClass: EventModel,
+          });
+          keyStore.set('twoDimensionalEvents', {
+            key: 'twoDimensionalEvents',
+            array: true,
+            dimension: 2,
+            originalKey: 'ee',
+            targetClass: EventModel,
+          });
+        } else if (Clazz === EducationModel) {
+          keyStore.set('id', {
+            key: 'id',
+            originalKey: 'i',
+          });
+          keyStore.set('shortName', {
+            key: 'shortName',
+            originalKey: 'sn',
+          });
+        } else if (Clazz === EventModel) {
+          keyStore.set('id', {
+            key: 'id',
+            originalKey: 'i',
+            default: 0,
+          });
+        }
+        return keyStore;
+      });
+      const res = toPlain(
         {
-          id: 123451,
-          name: 'user-name1',
-          email: 'email@xx.com1',
-          avatar: '1a1b1b3b4c34d231',
-          avatarUrl: 'https://cdn.com/avatar/1a1b1b3b4c34d231.png',
-        },
-        {
-          id: 123452,
-          name: 'user-name2',
-          email: 'email@xx.com2',
-          avatar: '1a1b1b3b4c34d232',
-          avatarUrl: 'https://cdn.com/avatar/1a1b1b3b4c34d232.png',
-        },
-      ],
-      UserModel,
-    );
-    assert.deepEqual(userRaws, users);
-  });
-
-  it('should return packageRaw', () => {
-    const packageRaw = toPlain(
-      {
-        id: 10000,
-        name: 'name',
-        creator: {
-          id: 20000,
-          name: 'name1',
-          email: 'email1@xx.com',
-          avatar: '1a1b1b3b4c34d234',
-          avatarUrl: 'https://cdn.com/avatar/1a1b1b3b4c34d234.png',
-        },
-      },
-      PackageModel,
-    );
-    assert.deepEqual(packageRaw, pkg);
-  });
-
-  it('should return departmentRaw', () => {
-    const departmentRaw = toPlain(
-      {
-        id: 10000,
-        name: 'department',
-        employees: [
-          {
-            id: 20001,
-            name: 'name1',
-            email: 'email1@xx.com',
-            avatar: '1a1b1b3b4c34d231',
-            avatarUrl: 'https://cdn.com/avatar/1a1b1b3b4c34d231.png',
+          id: 1000,
+          idd: 1000,
+          department: { id: 123, n: 'libs', c: 'seatalk' },
+          education: {
+            id: 2000,
+            shortName: 'NUS',
           },
-          {
-            id: 20002,
-            name: 'name2',
-            email: 'email2@xx.com',
-            avatar: '1a1b1b3b4c34d232',
-            avatarUrl: 'https://cdn.com/avatar/1a1b1b3b4c34d232.png',
-          },
+          events: [{ id: 1 }, { id: 2 }, {}],
+          twoDimensionalEvents: [
+            [{ id: 1 }, { id: 2 }],
+            [{ id: 3 }, { id: 4 }],
+          ],
+        },
+        TestModel,
+      );
+      assert.deepEqual(res, {
+        i: 1000,
+        dp: encodeURI(JSON.stringify({ id: 123, n: 'libs', c: 'seatalk' })),
+        edu: {
+          i: 2000,
+          sn: 'NUS',
+        },
+        e: [{ i: 1 }, { i: 2 }, { i: 0 }],
+        ee: [
+          [{ i: 1 }, { i: 2 }],
+          [{ i: 3 }, { i: 4 }],
         ],
-      },
-      DepartmentModel,
-    );
-    assert.deepEqual(department, departmentRaw);
+      });
+      mock.restore();
+    });
+
+    it('allow/disallow ignore afterSerializer/serializer', () => {
+      const mock = ImportMock.mockFunction(utils, 'getKeyStore').callsFake(() => {
+        const keyStore = new Map();
+        keyStore.set('department', {
+          key: 'department',
+          originalKey: 'dp',
+          serializer: (raw: any) => encodeURI(raw),
+        });
+        keyStore.set('id', {
+          key: 'id',
+          originalKey: 'id',
+          afterSerializer: (raw: number) => raw.toString(),
+        });
+        keyStore.set('department2', {
+          key: 'department2',
+          originalKey: 'dp2',
+          serializer: (raw: any) => encodeURI(raw),
+          disallowIgnoreSerializer: true,
+        });
+        keyStore.set('id2', {
+          key: 'id2',
+          originalKey: 'id2',
+          afterSerializer: (raw: number) => raw.toString(),
+          disallowIgnoreAfterSerializer: true,
+        });
+        return keyStore;
+      });
+      const res = toPlain(
+        {
+          id: '123.5',
+          department: '%7Babcd%7D',
+          id2: 123.5,
+          department2: '{abcd}',
+        },
+        TestModel,
+        {
+          ignoreAfterSerializer: true,
+          ignoreSerializer: true,
+        },
+      );
+      assert.deepEqual(res, {
+        id: '123.5',
+        dp: encodeURI('{abcd}'),
+        id2: '123.5',
+        dp2: encodeURI('{abcd}'),
+      });
+      mock.restore();
+    });
+
+    it('original value is undefined', () => {
+      const mock = ImportMock.mockFunction(utils, 'getKeyStore').callsFake(() => {
+        const keyStore = new Map();
+        keyStore.set('id', {
+          key: 'id',
+          originalKey: 'i',
+        });
+        return keyStore;
+      });
+      try {
+        toPlain({}, TestModel);
+      } catch (err) {
+        assert(err.message.indexOf('not found') >= 0);
+      }
+      mock.restore();
+    });
   });
 
-  it('should filter value', () => {
-    const emptyRaw = toPlain(
-      {
-        title: 'empty',
-        user: null,
-        timeStamp: 1581314281152,
-      },
-      EmptyModel,
-    );
-    assert.deepEqual(empty, emptyRaw);
+  describe('toPlains', () => {
+    class TestModel {}
+
+    it('normal', () => {
+      const mock = ImportMock.mockFunction(utils, 'getKeyStore').callsFake(() => {
+        const keyStore = new Map();
+        keyStore.set('name', {
+          key: 'name',
+          originalKey: 'n',
+        });
+        return keyStore;
+      });
+      const res = toPlains([{ name: 'name1' }, { name: 'name2' }], TestModel);
+      assert.deepEqual(res, [{ n: 'name1' }, { n: 'name2' }]);
+      mock.restore();
+    });
+
+    it('not an array', () => {
+      try {
+        toPlains({ n: 'name1' } as any, TestModel);
+      } catch (err) {
+        assert(err.message.indexOf('must be an array') >= 0);
+      }
+    });
   });
 });

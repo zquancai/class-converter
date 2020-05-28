@@ -1,66 +1,56 @@
 import { isArray } from 'lodash';
-import store from './store';
-import { JosnType, BasicClass, StoreItemType } from './typing';
+import { getKeyStore } from './utils';
+import { JosnType, BasicClass, StoreItemType, ToPlainOptions } from './typing';
 
-const classToObject = <T>(keyStore: Map<string, StoreItemType>, instance: JosnType, Clazz: BasicClass<T>): JosnType => {
+const classToObject = <T>(
+  keyStore: Map<string, StoreItemType>,
+  instance: JosnType,
+  Clazz: BasicClass<T>,
+  options: ToPlainOptions,
+): JosnType => {
   const obj: JosnType = {};
   keyStore.forEach((propertiesOption: StoreItemType, key: keyof JosnType) => {
-    const instanceValue = instance[key];
-    const { originalKey, serializer, targetClass, optional, array, dimension } = propertiesOption;
+    const instanceValue = instance[key] !== undefined ? instance[key] : propertiesOption.default;
+    const { originalKey, afterSerializer, serializer, targetClass, optional, array, dimension } = propertiesOption;
+    const disallowIgnoreSerializer = propertiesOption.disallowIgnoreSerializer || !options.ignoreSerializer;
+    const disallowIgnoreAfterSerializer =
+      propertiesOption.disallowIgnoreAfterSerializer || !options.ignoreAfterSerializer;
     if (instanceValue === undefined) {
       if (!optional) {
-        throw new Error(`Cannot map '${originalKey}' to ${Clazz.name}.${key}, property '${originalKey}' not found`);
+        throw new Error(`Property '${Clazz.name}.${key}' not found`);
       }
       return;
     }
-    if (instanceValue === null) {
-      obj[originalKey] = serializer ? serializer(instanceValue, instance, obj) : instanceValue;
-      return;
-    }
-    let value = instanceValue;
-    if (targetClass) {
+    let value =
+      serializer && disallowIgnoreSerializer ? serializer(instanceValue, instance, obj, options) : instanceValue;
+    if (value && targetClass) {
       if (array) {
         if (dimension === 1) {
           // eslint-disable-next-line @typescript-eslint/no-use-before-define
-          value = toPlains(instanceValue, targetClass);
+          value = toPlains(value, targetClass, options);
         } else {
           // eslint-disable-next-line @typescript-eslint/no-use-before-define
-          value = instanceValue.map((cur: any) => toPlains(cur, targetClass));
+          value = value.map((cur: any) => toPlains(cur, targetClass, options));
         }
       } else {
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        value = toPlain(instanceValue, targetClass);
+        value = toPlain(value, targetClass, options);
       }
     }
-    obj[originalKey] = serializer ? serializer(value, instance, obj) : value;
+    obj[originalKey] =
+      afterSerializer && disallowIgnoreAfterSerializer ? afterSerializer(value, instance, obj, options) : value;
   });
   return obj;
 };
 
-const getKeyStore = <T>(Clazz: BasicClass<T>) => {
-  let curLayer = Clazz;
-  const keyStore = new Map<string, StoreItemType>();
-  while (curLayer.name) {
-    const targetStore = store.get(curLayer);
-    if (targetStore) {
-      targetStore.forEach((storeItem: StoreItemType, key: string) => {
-        if (!keyStore.has(key)) {
-          keyStore.set(key, storeItem);
-        }
-      });
-    }
-    curLayer = Object.getPrototypeOf(curLayer);
-  }
-  return keyStore;
-};
-
-export const toPlains = <T>(instances: (T | JosnType)[], Clazz: BasicClass<T>): any[] => {
+export const toPlains = <T>(instances: (T | JosnType)[], Clazz: BasicClass<T>, options: ToPlainOptions = {}): any[] => {
   if (!isArray(instances)) {
-    throw new Error(`${Clazz} instances must be a array`);
+    throw new Error(`${Clazz} instances must be an array`);
   }
-  return instances.map((item: JosnType) => classToObject<T>(getKeyStore(Clazz), item, Clazz));
+  const keyStore = getKeyStore(Clazz);
+  return instances.map((item: JosnType) => classToObject<T>(keyStore, item, Clazz, options));
 };
 
-export const toPlain = <T>(instance: T | JosnType, Clazz: BasicClass<T>): any => {
-  return classToObject<T>(getKeyStore(Clazz), instance, Clazz);
+export const toPlain = <T>(instance: T | JosnType, Clazz: BasicClass<T>, options: ToPlainOptions = {}): any => {
+  return classToObject<T>(getKeyStore(Clazz), instance, Clazz, options);
 };

@@ -1,82 +1,65 @@
 import { isArray } from 'lodash';
-import store from './store';
-import { JosnType, OriginalStoreItemType, BasicClass, StoreItemType } from './typing';
+import { getOriginalKetStore } from './utils';
+import { JosnType, StoreItemOptions, BasicClass, ToClassOptions } from './typing';
 
 const objectToClass = <T>(
-  originalKeyStore: Map<string, OriginalStoreItemType[]>,
+  originalKeyStore: Map<string, StoreItemOptions[]>,
   jsonObj: { [key: string]: any },
   Clazz: BasicClass<T>,
+  options: ToClassOptions,
 ): T => {
   const instance: any = new Clazz();
-  originalKeyStore.forEach((propertiesOption: OriginalStoreItemType[], originalKey) => {
+  originalKeyStore.forEach((propertiesOptions: StoreItemOptions[], originalKey) => {
     const originalValue = jsonObj[originalKey];
-    propertiesOption.forEach(
-      ({ key, deserializer, targetClass, optional, array, dimension }: OriginalStoreItemType) => {
-        if (originalValue === undefined) {
-          if (!optional) {
-            throw new Error(`Cannot map '${originalKey}' to ${Clazz.name}.${key}, property '${originalKey}' not found`);
-          }
-          return;
+    propertiesOptions.forEach((storeItemoptions: StoreItemOptions) => {
+      const { key, beforeDeserializer, deserializer, targetClass, optional, array, dimension } = storeItemoptions;
+      const disallowIgnoreDeserializer = storeItemoptions.disallowIgnoreDeserializer || !options.ignoreDeserializer;
+      const disallowIgnoreBeforeDeserializer =
+        storeItemoptions.disallowIgnoreBeforeDeserializer || !options.ignoreBeforeDeserializer;
+
+      let value = originalValue !== undefined ? originalValue : storeItemoptions.default;
+      if (originalKey && value === undefined) {
+        if (!optional) {
+          throw new Error(`Can't map '${originalKey}' to ${Clazz.name}.${key}, property '${originalKey}' not found`);
         }
-        if (originalValue === null) {
-          instance[key] = deserializer ? deserializer(originalValue, instance, jsonObj) : originalValue;
-          return;
-        }
-        let value = originalValue;
-        if (targetClass) {
-          if (array) {
-            if (dimension === 1) {
-              // eslint-disable-next-line @typescript-eslint/no-use-before-define
-              value = toClasses(originalValue, targetClass);
-            } else {
-              // eslint-disable-next-line @typescript-eslint/no-use-before-define
-              value = originalValue.map((cur: any) => toClasses(cur, targetClass));
-            }
+        return;
+      }
+      value =
+        beforeDeserializer && disallowIgnoreBeforeDeserializer
+          ? beforeDeserializer(value, instance, jsonObj, options)
+          : value;
+      if (value && targetClass) {
+        if (array) {
+          if (dimension === 1) {
+            // eslint-disable-next-line @typescript-eslint/no-use-before-define
+            value = toClasses(value, targetClass, options);
           } else {
             // eslint-disable-next-line @typescript-eslint/no-use-before-define
-            value = toClass(originalValue, targetClass);
+            value = value.map((cur: any) => toClasses(cur, targetClass, options));
           }
+          instance[key] = value;
+        } else {
+          // eslint-disable-next-line @typescript-eslint/no-use-before-define
+          value = toClass(value, targetClass, options);
         }
-        instance[key] = deserializer ? deserializer(value, instance, jsonObj) : value;
-      },
-    );
+      }
+      instance[key] =
+        deserializer && disallowIgnoreDeserializer ? deserializer(value, instance, jsonObj, options) : value;
+    });
   });
   return instance;
 };
 
-const getOriginalKetStore = <T>(Clazz: BasicClass<T>) => {
-  let curLayer = Clazz;
-  const originalKeyStore = new Map<string, OriginalStoreItemType[]>();
-  while (curLayer.name) {
-    const targetStore = store.get(curLayer);
-    if (targetStore) {
-      targetStore.forEach((storeItem: StoreItemType, key: string) => {
-        const item = {
-          key,
-          ...storeItem,
-        };
-        if (!originalKeyStore.has(storeItem.originalKey)) {
-          originalKeyStore.set(storeItem.originalKey, [item]);
-        } else {
-          const exists = originalKeyStore.get(storeItem.originalKey);
-          if (!exists.find((exist: OriginalStoreItemType) => exist.key === key)) {
-            originalKeyStore.set(storeItem.originalKey, [...originalKeyStore.get(storeItem.originalKey), item]);
-          }
-        }
-      });
-    }
-    curLayer = Object.getPrototypeOf(curLayer);
-  }
-  return originalKeyStore;
-};
-
-export const toClasses = <T>(rawJson: JosnType[], Clazz: BasicClass<T>): T[] => {
+export const toClasses = <T>(rawJson: JosnType[], Clazz: BasicClass<T>, options: ToClassOptions = {}): T[] => {
   if (!isArray(rawJson)) {
-    throw new Error(`rawJson ${rawJson} must be a array`);
+    throw new Error(`rawJson ${rawJson} must be an array`);
   }
-  return rawJson.map((item: object) => objectToClass<T>(getOriginalKetStore(Clazz), item, Clazz));
+  const { constructor } = Clazz.prototype;
+  const originalKetStore = getOriginalKetStore(constructor);
+  return rawJson.map((item: object) => objectToClass<T>(originalKetStore, item, constructor, options));
 };
 
-export const toClass = <T>(rawJson: JosnType, Clazz: BasicClass<T>): T => {
-  return objectToClass<T>(getOriginalKetStore(Clazz), rawJson as object, Clazz);
+export const toClass = <T>(rawJson: JosnType, Clazz: BasicClass<T>, options: ToClassOptions = {}): T => {
+  const { constructor } = Clazz.prototype;
+  return objectToClass<T>(getOriginalKetStore(constructor), rawJson as object, constructor, options);
 };

@@ -1,0 +1,25 @@
+{
+  "creator": {
+    "avatar": "1a1b1b3b4c34d234",
+    "avatarUrl": "https://cdn.com/avatar/1a1b1b3b4c34d234.png",
+    "department": {
+      "id": 1111,
+      "name": "department"
+    },
+    "educations": [
+      {
+        "id": 1111,
+        "schoolName": "szzx"
+      },
+      {
+        "id": 2222,
+        "schoolName": "scnu"
+      }
+    ],
+    "email": "email1@xx.com",
+    "id": 20000,
+    "name": "name1"
+  },
+  "id": 10000,
+  "name": "name"
+}

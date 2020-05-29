@@ -17,8 +17,12 @@ const objectToClass = <T>(
       const disallowIgnoreBeforeDeserializer =
         storeItemoptions.disallowIgnoreBeforeDeserializer || !options.ignoreBeforeDeserializer;
 
-      let value = originalValue !== undefined ? originalValue : storeItemoptions.default;
+      let value = originalValue;
       if (originalKey && value === undefined) {
+        if (storeItemoptions.default !== undefined) {
+          instance[key] = storeItemoptions.default;
+          return;
+        }
         if (!optional) {
           throw new Error(`Can't map '${originalKey}' to ${Clazz.name}.${key}, property '${originalKey}' not found`);
         }

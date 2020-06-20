@@ -32,9 +32,11 @@ export type DimensionRange = 1 | 2;
 export interface ToClassOptions {
   ignoreDeserializer?: boolean;
   ignoreBeforeDeserializer?: boolean;
+  distinguishNullAndUndefined?: boolean;
 }
 
 export interface ToPlainOptions {
   ignoreSerializer?: boolean;
   ignoreAfterSerializer?: boolean;
+  distinguishNullAndUndefined?: boolean;
 }

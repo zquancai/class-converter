@@ -1,5 +1,5 @@
 import { isArray } from 'lodash';
-import { getOriginalKetStore } from './utils';
+import { getOriginalKetStore, isUndefined, isNullOrUndefined } from './utils';
 import { JosnType, StoreItemOptions, BasicClass, ToClassOptions } from './typing';
 
 const objectToClass = <T>(
@@ -17,9 +17,10 @@ const objectToClass = <T>(
       const disallowIgnoreBeforeDeserializer =
         storeItemoptions.disallowIgnoreBeforeDeserializer || !options.ignoreBeforeDeserializer;
 
+      const isValueNotExist = options.distinguishNullAndUndefined ? isUndefined : isNullOrUndefined;
       let value = originalValue;
-      if (originalKey && value === undefined) {
-        if (storeItemoptions.default !== undefined) {
+      if (isValueNotExist(value)) {
+        if (!isValueNotExist(storeItemoptions.default)) {
           instance[key] = storeItemoptions.default;
           return;
         }

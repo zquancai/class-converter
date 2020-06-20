@@ -22,10 +22,10 @@ const userRaw = {
 // use toClass to convert plain object to class
 const userModel = toClass(userRaw, UserModel);
 // you will get a class, just like below one
-// const userModel = {
-//   id: 1234,
-//   name: 'name',
-// }
+{
+  id: 1234,
+  name: 'name',
+}
 ```
 
 you can see a more complex example [here](example)
@@ -104,7 +104,7 @@ const userRaws = toPlains(userModels, UserModel);
 
 The order in which these decorator's are invoked during the transformation:
 
-- `toClass/toClasses`: beforeDeserializer => typed(convert to a instance) => deserializer
+- `toClass/toClasses`: beforeDeserializer => typed(convert to an instance) => deserializer
 - `toPlain/toPlains`: serializer => typed(convert to a object) => afterSerializer
 
 #### property(originalKey?, clazzType?, optional = false)
@@ -131,6 +131,17 @@ class PropertyModel {
   @property('t', null, true)
   timeStamp: number;
 }
+
+const model = toClass({ i: 234, name: 'property', u: { i: 123, n: 'name' } }, PropertyModel);
+// you will get like this
+{
+  id: 234,
+  name: 'property',
+  user: {
+    id: 123,
+    name: 'name'
+  }
+}
 ```
 
 ### typed(clazzType)
@@ -148,6 +159,15 @@ class TypedModel {
   @property('u')
   user: UserModel;
 }
+
+const model = toClass({ u: { i: 123, n: 'name' } }, TypedModel);
+// you will get like this
+{
+  user: {
+    id: 123,
+    name: 'name'
+  }
+}
 ```
 
 ### optional()
@@ -158,10 +178,21 @@ Example:
 
 ```ts
 // as same as @property('n', null, true)
-class TypedModel {
+class OptionalModel {
   @optional()
   @property('n')
   name: string;
+}
+
+const model = toClass({}, OptionalModel);
+// you will get like this
+{
+}
+
+const model = toClass({ n: 'name' }, OptionalModel);
+// you will get like this
+{
+  name: 'name';
 }
 ```
 
@@ -179,6 +210,40 @@ class ArrayModel {
   @property('e', UserModel)
   employees: UserModel[];
 }
+
+const model = toClass(
+  {
+    e: [
+      { i: 1, n: 'n1' },
+      { i: 2, n: 'n2' },
+    ],
+  },
+  ArrayModel,
+);
+// you will get like this
+{
+  employees: [
+    { id: 1, name: 'n1' },
+    { id: 2, name: 'n2' },
+  ],
+}
+
+const model = toPlain(
+  {
+    employees: [
+      { id: 1, name: 'n1' },
+      { id: 2, name: 'n2' },
+    ],
+  },
+  ArrayModel,
+);
+// you will get like this
+{
+  e: [
+    { i: 1, n: 'n1' },
+    { i: 2, n: 'n2' },
+  ],
+}
 ```
 
 ### defaultVal(val)
@@ -194,6 +259,48 @@ class DefaultValModel {
   @defaultVal(0)
   @property('i')
   id: number;
+}
+
+const model = toClass({}, DefaultValModel);
+// you will get like this
+{
+  id: 0;
+}
+
+const raw = toPLain({}, DefaultValModel);
+// you will get like this
+{
+  i: 0;
+}
+```
+
+### serializeTarget()
+
+use the value of the current property when call `toPlain` function.
+
+Example:
+
+```ts
+class SerializeTargetModel {
+  @serializeTarget()
+  @property('n')
+  name: string;
+
+  @property('n')
+  nick: string;
+}
+
+const raw = toPlain(
+  {
+    name: 'name',
+    nick: 'nick',
+  },
+  SerializeTargetModel,
+);
+
+// you will get like this
+{
+  n: 'name';
 }
 ```
 
@@ -290,12 +397,12 @@ toPlain(
 // you will get like this
 {
   e: 'mail@xxx.com',
-};
+}
 ```
 
 ### afterSerialize(afterSerializer, disallowIgnoreAfterSerializer = false)
 
-Convert a key/value in instance to a target form data, it happened after serializer
+Convert a key/value in instance to a target form data, it happened after serializer only
 
 - `afterSerializer` `(value: any, instance: any, origin: any) => any`
   - `value` `<Any>` The value(result of serializer) corresponding to the current key in a instance
@@ -326,9 +433,11 @@ toPlain(
 ```
 
 # Tests
+
 ```bash
 npm run test
 ```
 
 # License
+
 [MIT](LICENSE.md)

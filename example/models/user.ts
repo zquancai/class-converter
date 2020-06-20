@@ -1,4 +1,4 @@
-import { property, array, typed } from '../src';
+import { property, array, typed } from '../../src';
 import { AvatarModel } from './avatar';
 import { DepartmentModel } from './department';
 import { EducationModel } from './education';

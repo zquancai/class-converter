@@ -160,11 +160,51 @@ describe('to-plain', () => {
         });
         return keyStore;
       });
+      let error: Error;
       try {
         toPlain({}, TestModel);
       } catch (err) {
-        assert(err.message.indexOf('not found') >= 0);
+        error = err;
       }
+      assert(error && error.message.indexOf('TestModel.id') >= 0);
+      mock.restore();
+    });
+
+    it('original value is null', () => {
+      const mock = ImportMock.mockFunction(utils, 'getKeyStore').callsFake(() => {
+        const keyStore = new Map();
+        keyStore.set('id', {
+          key: 'id',
+          originalKey: 'i',
+        });
+        return keyStore;
+      });
+      let error: Error;
+      try {
+        toPlain({ id: null }, TestModel);
+      } catch (err) {
+        error = err;
+      }
+      assert(error && error.message.indexOf('TestModel.id') >= 0);
+      mock.restore();
+    });
+
+    it('original value is null but distinguishNullAndUndefined equal true', () => {
+      const mock = ImportMock.mockFunction(utils, 'getKeyStore').callsFake(() => {
+        const keyStore = new Map();
+        keyStore.set('id', {
+          key: 'id',
+          originalKey: 'i',
+        });
+        return keyStore;
+      });
+
+      const res = toPlain({ id: null }, TestModel, {
+        distinguishNullAndUndefined: true,
+      });
+      assert.deepEqual(res, {
+        i: null,
+      });
       mock.restore();
     });
   });
@@ -187,11 +227,13 @@ describe('to-plain', () => {
     });
 
     it('not an array', () => {
+      let error: Error;
       try {
         toPlains({ n: 'name1' } as any, TestModel);
       } catch (err) {
-        assert(err.message.indexOf('must be an array') >= 0);
+        error = err;
       }
+      assert(error && error.message.indexOf('must be an array') >= 0);
     });
   });
 });

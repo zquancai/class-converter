@@ -1,5 +1,5 @@
 // eslint-disable-next-line max-classes-per-file
-import { property } from '../src';
+import { property } from '../../src';
 import { UserModel } from './user';
 import { BaseModel } from './base';
 

@@ -1,4 +1,4 @@
-import { property, optional } from '../src';
+import { property, optional } from '../../src';
 import { BaseModel } from './base';
 
 export class DepartmentModel extends BaseModel<DepartmentModel> {

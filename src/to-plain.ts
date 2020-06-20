@@ -1,5 +1,5 @@
 import { isArray } from 'lodash';
-import { getKeyStore } from './utils';
+import { getKeyStore, isUndefined, isNullOrUndefined } from './utils';
 import { JosnType, BasicClass, StoreItemType, ToPlainOptions } from './typing';
 
 const classToObject = <T>(
@@ -10,12 +10,14 @@ const classToObject = <T>(
 ): JosnType => {
   const obj: JosnType = {};
   keyStore.forEach((propertiesOption: StoreItemType, key: keyof JosnType) => {
-    const instanceValue = instance[key] !== undefined ? instance[key] : propertiesOption.default;
+    const isValueNotExist = options.distinguishNullAndUndefined ? isUndefined : isNullOrUndefined;
+    const instanceValue = isValueNotExist(instance[key]) ? propertiesOption.default : instance[key];
     const { originalKey, afterSerializer, serializer, targetClass, optional, array, dimension } = propertiesOption;
     const disallowIgnoreSerializer = propertiesOption.disallowIgnoreSerializer || !options.ignoreSerializer;
     const disallowIgnoreAfterSerializer =
       propertiesOption.disallowIgnoreAfterSerializer || !options.ignoreAfterSerializer;
-    if (instanceValue === undefined) {
+
+    if (isValueNotExist(instanceValue)) {
       if (!optional) {
         throw new Error(`Property '${Clazz.name}.${key}' not found`);
       }

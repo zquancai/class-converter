@@ -1,6 +1,12 @@
 import { StoreItemOptions, StoreItemType, BasicClass } from './typing';
 import store from './store';
 
+export const isNull = (val: any) => val === null;
+
+export const isUndefined = (val: any) => val === undefined;
+
+export const isNullOrUndefined = (val: any) => isNull(val) || isUndefined(val);
+
 export const getOriginalKetStore = <T>(Clazz: BasicClass<T>) => {
   let curLayer = Clazz;
   const originalKeyStore = new Map<string, StoreItemOptions[]>();

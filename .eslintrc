@@ -19,6 +19,13 @@
     }
   },
   "rules": {
+    "import/extensions": [
+      "error",
+      "ignorePackages",
+      {
+        "ts": "never"
+      }
+    ],
     "max-len": [
       "error",
       {

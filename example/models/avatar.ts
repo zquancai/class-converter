@@ -1,4 +1,4 @@
-import { property, deserialize, serializeTarget } from '../src';
+import { property, deserialize, serializeTarget } from '../../src';
 import { BaseModel } from './base';
 
 export class AvatarModel<T = any> extends BaseModel<T & AvatarModel<T>> {

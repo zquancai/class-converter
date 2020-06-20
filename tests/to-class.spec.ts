@@ -191,11 +191,54 @@ describe('to-class', () => {
         ]);
         return originalKeyStore;
       });
+      let error: Error;
       try {
         toClass({}, TestModel);
       } catch (err) {
-        assert(err.message.indexOf('not found'));
+        error = err;
       }
+      assert(error && error.message.indexOf('TestModel.id'));
+      mock.restore();
+    });
+
+    it('original value is null', () => {
+      const mock = ImportMock.mockFunction(utils, 'getOriginalKetStore').callsFake(() => {
+        const originalKeyStore = new Map();
+        originalKeyStore.set('i', [
+          {
+            key: 'id',
+            originalKey: 'i',
+          },
+        ]);
+        return originalKeyStore;
+      });
+      let error: Error;
+      try {
+        toClass({ id: null }, TestModel);
+      } catch (err) {
+        error = err;
+      }
+      assert(error && error.message.indexOf('TestModel.id'));
+      mock.restore();
+    });
+
+    it('original value is null but distinguishNullAndUndefined equal true', () => {
+      const mock = ImportMock.mockFunction(utils, 'getOriginalKetStore').callsFake(() => {
+        const originalKeyStore = new Map();
+        originalKeyStore.set('i', [
+          {
+            key: 'id',
+            originalKey: 'i',
+          },
+        ]);
+        return originalKeyStore;
+      });
+      const res = toClass({ i: null }, TestModel, {
+        distinguishNullAndUndefined: true,
+      });
+      assert.deepEqual(res, {
+        id: null,
+      });
       mock.restore();
     });
   });
@@ -220,11 +263,13 @@ describe('to-class', () => {
     });
 
     it('not an array', () => {
+      let error: Error;
       try {
         toClasses({ n: 'name1' } as any, TestModel);
       } catch (err) {
-        assert(err.message.indexOf('must be an array') >= 0);
+        error = err;
       }
+      assert(error && error.message.indexOf('must be an array') >= 0);
     });
   });
 });

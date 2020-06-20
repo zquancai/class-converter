@@ -1,9 +1,24 @@
 // eslint-disable-next-line max-classes-per-file
 import assert from 'assert';
 import { mockStore } from './fixtures';
-import { getOriginalKetStore, getKeyStore } from '../src/utils';
+import { getOriginalKetStore, getKeyStore, isNull, isNullOrUndefined, isUndefined } from '../src/utils';
 
 describe('utils', () => {
+  describe('null & undefined', () => {
+    it('isNull', () => {
+      assert(isNull(null));
+    });
+
+    it('isUndefined', () => {
+      assert(isUndefined(undefined));
+    });
+
+    it('isNullOrUndefined', () => {
+      assert(isNullOrUndefined(undefined));
+      assert(isNullOrUndefined(null));
+    });
+  });
+
   describe('getOriginalKetStore', () => {
     class BaseModel {}
 

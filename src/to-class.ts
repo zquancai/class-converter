@@ -1,4 +1,4 @@
-import { isArray } from 'lodash';
+import isArray from 'isarray';
 import { getOriginalKetStore, isUndefined, isNullOrUndefined } from './utils';
 import { JosnType, StoreItemOptions, BasicClass, ToClassOptions } from './typing';
 

@@ -6,9 +6,9 @@
 
 [English](README.md) | [简体中文](README-zh_CN.md)
 
-`class-converter` is used to convert a plain object to a class instance and the reverse process.
+`class-converter` 是一个用来将一个 json 转换成 class 的反序列化工具，并提供其逆过程。
 
-There is a simple example:
+这里是一个列子：
 
 ```ts
 import { property, toClass } from 'class-convert';
@@ -26,37 +26,37 @@ const userRaw = {
   name: 'name',
 };
 
-// use toClass to convert plain object to class
+// 使用 toClass 将 json 转换成 class
 const userModel = toClass(userRaw, UserModel);
-// you will get a class, just like below one
+// 你将获得如下数据
 {
   id: 1234,
   name: 'name',
 }
 ```
 
-you can see a more complex example [here](example)
+更多的示例请见[这里](example)
 
-# Installation
+# 如何安装
 
 ```bash
 npm i class-converter --save
 ```
 
-# Methods
+# 方法
 
 ## toClass(raw, clazzType, options?) / toClasses(raws, clazzType, options?)
 
-Convert an object to a class instance
+将一个 json 对象映射成一个类实例
 
-- `raw` / `raws` `<Object|Array<Object>>` An raw `object` or an array of raw `object`
-- `clazzType` `<Class>` Constructor of the target class
-- `options?` `<Object>` convert config
-  - `ignoreDeserializer` `<Boolean>` don't call deserializer(@deserialize) if true
-  - `ignoreBeforeDeserializer` `<Boolean>` don't call beforeDeserializer(@beforeDeserialize) if true
-  - `distinguishNullAndUndefined` `<Boolean>` distinguish null and undefined if true
+- `raw` / `raws` `<Object|Array<Object>>` 一个 josn 对象或者 json 对象数据
+- `clazzType` `<Class>` 类的构造函数
+- `options?` `<Object>` 配置
+  - `ignoreDeserializer` `<Boolean>` 当设置为 true 时，不会调用使用 @deserialize 装饰器配置的方法
+  - `ignoreBeforeDeserializer` `<Boolean>` 当设置为 true 时，不会调用使用 @beforeDeserialize 装饰器配置的方法
+  - `distinguishNullAndUndefined` `<Boolean>` 当设置为 true 时，区分 null 和 undefined
 
-Example:
+示例：
 
 ```ts
 const userRaw = {
@@ -79,16 +79,16 @@ const userModels = toClasses(userRaws, UserModel);
 
 ## toPlain(instance, clazzType, options?) / toPlains(instances, clazzType, options?)
 
-convert an object or a class instance to a raw object
+将一个类实例或者 json 对象映射成另外一个 json 对象
 
-- `instance` / `instances` `<Object|Array<Object>>` An `object|instance` or array of `object|instance`
+- `instance` / `instances` `<Object|Array<Object>>` 一个 json 或类实例，或者一个json或类实例组成的数组
 - `clazzType` `<Class>` Constructor of the target class
-- `options?` `<Object>` convert config
-  - `ignoreSerializer` `<Boolean>` don't call serializer(@serialize) if true
-  - `ignoreAfterSerializer` `<Boolean>` don't call afterSerializer(@afterSerialize) if true
-  - `distinguishNullAndUndefined` `<Boolean>` distinguish null and undefined if true
+- `options?` `<Object>` 类的构造函数
+  - `ignoreSerializer` `<Boolean>` 当设置为 true 时，不会调用使用 @serialize 装饰器配置的方法
+  - `ignoreAfterSerializer` `<Boolean>` 当设置为 true 时，不会调用使用 @afterSerialize 装饰器配置的方法
+  - `distinguishNullAndUndefined` `<Boolean>` 当设置为 true 时，区分 null 和 undefined
 
-Example:
+示例：
 
 ```ts
 const userModel = {
@@ -109,22 +109,22 @@ const userRaw = toPlain(userModel, UserModel);
 const userRaws = toPlains(userModels, UserModel);
 ```
 
-## Property Decorators
+## 属性装饰器
 
-The order in which these decorator's are invoked during the transformation:
+调用不同的方法时，这些装饰器的执行顺序：
 
-- `toClass/toClasses`: beforeDeserializer => typed(convert to an instance) => deserializer
-- `toPlain/toPlains`: serializer => typed(convert to a object) => afterSerializer
+- `toClass/toClasses`: beforeDeserializer => typed(映射成一个类实例) => deserializer
+- `toPlain/toPlains`: serializer => typed(映射成一个对象) => afterSerializer
 
 #### property(originalKey?, clazzType?, optional = false)
 
-Convert a original key to your customized key, like `n => name`
+将一个 key 映射到另外一个 key，如 `n => name`
 
-- `originalKey` `<string>` A key of a raw object, default current class key
-- `clazzType` `<Class>` Constructor its value to a target class instance automatically
-- `optional` `<Boolean>` Optional in a raw object
+- `originalKey` `<string>` 被映射的数据 key， 如果不传则默认同名
+- `clazzType` `<Class>` 自动将该属性的值映射到一个类实例，相当于调用了 `toClass` 方法
+- `optional` `<Boolean>` 是否可选
 
-Example:
+示例：
 
 ```ts
 class PropertyModel {
@@ -142,7 +142,7 @@ class PropertyModel {
 }
 
 const model = toClass({ i: 234, name: 'property', u: { i: 123, n: 'name' } }, PropertyModel);
-// you will get like this
+// 你将获得如下数据
 {
   id: 234,
   name: 'property',
@@ -155,14 +155,14 @@ const model = toClass({ i: 234, name: 'property', u: { i: 123, n: 'name' } }, Pr
 
 ### typed(clazzType)
 
-Set a target class type to a property, as same as the second parameter of property decorator
+设置一个目标类的构造器，相当于 property 装饰器的第二个参数
 
-- `clazzType` `<Class>` Constructor its value to a target class instance automatically
+- `clazzType` `<Class>` 自动将该属性的值映射到一个类实例，相当于调用了 `toClass` 方法
 
-Example:
+示例：
 
 ```ts
-// as same as @property('n', UserModel)
+// 与此设置一致 @property('n', UserModel)
 class TypedModel {
   @typed(UserModel)
   @property('u')
@@ -170,7 +170,7 @@ class TypedModel {
 }
 
 const model = toClass({ u: { i: 123, n: 'name' } }, TypedModel);
-// you will get like this
+// 你将获得如下数据
 {
   user: {
     id: 123,
@@ -181,12 +181,12 @@ const model = toClass({ u: { i: 123, n: 'name' } }, TypedModel);
 
 ### optional()
 
-Set a optional setting to a property, as same as the third parameter of property decorator
+设置一个属性为可选，相当于 property 装饰器的第三个参数
 
-Example:
+示例：
 
 ```ts
-// as same as @property('n', null, true)
+// 与此设置一致 @property('n', null, true)
 class OptionalModel {
   @optional()
   @property('n')
@@ -194,12 +194,12 @@ class OptionalModel {
 }
 
 const model = toClass({}, OptionalModel);
-// you will get like this
+// 你将获得如下数据
 {
 }
 
 const model = toClass({ n: 'name' }, OptionalModel);
-// you will get like this
+// 你将获得如下数据
 {
   name: 'name';
 }
@@ -207,11 +207,11 @@ const model = toClass({ n: 'name' }, OptionalModel);
 
 ### array(dimension?)
 
-Only support when use `@property` with a clazzType parameter.
+当且仅当设置了 `@property` 装饰器的第二个参数时有效
 
-- `dimension` `<Number>` dimension of the array, default 1
+- `dimension` `<Number>` 数组的维度，默认为 1
 
-Example:
+示例：
 
 ```ts
 class ArrayModel {
@@ -229,7 +229,7 @@ const model = toClass(
   },
   ArrayModel,
 );
-// you will get like this
+// 你将获得如下数据
 {
   employees: [
     { id: 1, name: 'n1' },
@@ -246,7 +246,7 @@ const model = toPlain(
   },
   ArrayModel,
 );
-// you will get like this
+// 你将获得如下数据
 {
   e: [
     { i: 1, n: 'n1' },
@@ -257,11 +257,11 @@ const model = toPlain(
 
 ### defaultVal(val)
 
-set a default value to current property
+给当前属性设置默认值
 
-- `val` `<Any>` default value
+- `val` `<Any>` 要设置的默认值
 
-Example:
+示例：
 
 ```ts
 class DefaultValModel {
@@ -271,13 +271,13 @@ class DefaultValModel {
 }
 
 const model = toClass({}, DefaultValModel);
-// you will get like this
+// 你将获得如下数据
 {
   id: 0;
 }
 
 const raw = toPLain({}, DefaultValModel);
-// you will get like this
+// 你将获得如下数据
 {
   i: 0;
 }
@@ -285,9 +285,9 @@ const raw = toPLain({}, DefaultValModel);
 
 ### serializeTarget()
 
-use the value of the current property when call `toPlain` function.
+当调 `toPlain` 进行序列化时，用使用当前数据作为基准
 
-Example:
+示例：
 
 ```ts
 class SerializeTargetModel {
@@ -307,7 +307,7 @@ const raw = toPlain(
   SerializeTargetModel,
 );
 
-// you will get like this
+// 你将获得如下数据
 {
   n: 'name';
 }
@@ -315,15 +315,15 @@ const raw = toPlain(
 
 ### beforeDeserialize(beforeDeserializer, disallowIgnoreBeforeDeserializer = false)
 
-Convert original value to a target form data, it happened before deserializer
+在 `@typed` 调用之前调用
 
 - `beforeDeserializer` `<(value: any, instance: any, origin: any) => any>`
-  - `value` `<Any>` The value corresponding to the current key in a raw object
-  - `instance` `<Instance>` An instance(half-baked) of current class
-  - `origin` `<Object>` A raw object
-- `disallowIgnoreBeforeDeserializer` `<Boolean>` Force call beforeDeserializer(@beforeDeserialize) when call `toClass` if true, default false
+  - `value` `<Any>` 该属性在原始对象中的值
+  - `instance` `<Instance>` 类实例（未完成解析）
+  - `origin` `<Object>` 原始对象
+- `disallowIgnoreBeforeDeserializer` `<Boolean>` 默认为 false，如果设置为 true，则当调用 `toClass` 时，将强制调用 `@beforeDeserialize` 配置的方法
 
-Example:
+示例：
 
 ```ts
 class BeforeDeserializeModel {
@@ -339,7 +339,7 @@ toClass(
   BeforeDeserializeModel,
 );
 
-// you will get like this
+// 你将获得如下数据
 {
   mail: { id: 123 },
 };
@@ -347,15 +347,15 @@ toClass(
 
 ### deserialize(deserializer, disallowIgnoreDeserializer =false)
 
-Deserialize original value to customized data, it only support when use `toClass/toClasses`
+将原始对象序列化成自定义的数组格式，仅在调用  `toClass/toClasses` 时可用
 
 - `deserializer` `(value: any, instance: any, origin: any) => any`
-  - `value` `<Any>` The value(result of beforeDeserializer/typed) corresponding to the current key in a raw object
-  - `instance` `<Instance>` An instance(half-baked) of current class
+  - `value` `<Any>` 该属性的值经过 `@beforeDeserialize` 和 `@typed` 调用后的结果
+  - `instance` `<Instance>` 类实例（未完成解析）
   - `origin` `<Object>` A raw object
-- `disallowIgnoreDeserializer` `<Boolean>` Force call deserializer(@deserialize) when call `toClass` if true, default false
+- `disallowIgnoreDeserializer` `<Boolean>` 默认为 false，如果设置为 true，则当调用 `toClass` 时，将强制调用 `@deserialize` 配置的方法
 
-Example:
+示例：
 
 ```ts
 class DeserializeModel {
@@ -371,7 +371,7 @@ toClass(
   DeserializeModel,
 );
 
-// you will get like this
+// 你将获得如下数据
 {
   mail: 'mail@xxx.com',
 };
@@ -379,13 +379,13 @@ toClass(
 
 ### serialize(serializer, disallowIgnoreSerializer = false)
 
-Serialize customized value to original value, it only support when use `toPlain/toPlains`
+自定义属性值的序列化方式，仅当调用 `toPlain/toPlains` 时可用
 
 - `serializer` `(value: any, instance: any, origin: any) => any`
-  - `value` `<Any>` The value corresponding to the current key in a instance
-  - `instance` `<Instance>` An instance of current class
-  - `origin` `<Object>` A raw object(half-baked)
-- `disallowIgnoreSerializer` `<Boolean>` Force call serializer(@serialize) when call `toPlain` if true, default false
+  - `value` `<Any>` 该属性在类实例中的值
+  - `instance` `<Instance>` 当前类实例
+  - `origin` `<Object>` 一个json对象（未完成序列化）
+- `disallowIgnoreSerializer` `<Boolean>` 默认为 false，如果设置为 true，则当调用 `toClass` 时，将强制调用 `@serialize` 配置的方法
 
 Example:
 
@@ -403,7 +403,7 @@ toPlain(
   SerializeModel,
 );
 
-// you will get like this
+// 你将获得如下数据
 {
   e: 'mail@xxx.com',
 }
@@ -414,12 +414,12 @@ toPlain(
 Convert a key/value in instance to a target form data, it happened after serializer only
 
 - `afterSerializer` `(value: any, instance: any, origin: any) => any`
-  - `value` `<Any>` The value(result of serializer/typed) corresponding to the current key in a instance
-  - `instance` `<Instance>` An instance of current class
-  - `origin` `<Object>` A raw object(half-baked)
-- `disallowIgnoreAfterSerializer` `<Boolean>` Force call afterSerializer(@afterSerialize) when call `toPlain` if true, default false
+  - `value` `<Any>` 该属性的值经过 `@serializer` 和 `@typed` 调用后的结果
+  - `instance` `<Instance>` 当前类实例
+  - `origin` `<Object>` 一个json对象（未完成序列化）
+- `disallowIgnoreAfterSerializer` `<Boolean>` 默认为 false，如果设置为 true，则当调用 `toClass` 时，将强制调用 `@afterSerialize` 配置的方法
 
-Example:
+示例：
 
 ```ts
 class AfterSerializeModel {
@@ -435,18 +435,18 @@ toPlain(
   SerializeModel,
 );
 
-// you will get like this
+// 你将获得如下数据
 {
   e: '{"id":1000}',
 };
 ```
 
-# Tests
+# 测试
 
 ```bash
 npm run test
 ```
 
-# License
+# 许可证
 
 [MIT](LICENSE.md)

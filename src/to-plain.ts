@@ -1,4 +1,4 @@
-import { isArray } from 'lodash';
+import isArray from 'isarray';
 import { getKeyStore, isUndefined, isNullOrUndefined } from './utils';
 import { JosnType, BasicClass, StoreItemType, ToPlainOptions } from './typing';
 

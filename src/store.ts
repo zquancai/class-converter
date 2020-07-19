@@ -2,6 +2,9 @@ import { StoreItemOptions, StoreItemType } from './typing';
 
 const store = new Map<Function, Map<string, StoreItemType>>();
 
+export const originalKeyStores = new Map<Function, Map<string, StoreItemOptions[]>>();
+export const keyStores = new Map<Function, Map<string, StoreItemType>>();
+
 export const setStore = (target: Function, options: StoreItemOptions) => {
   const { key, ...rest } = options;
   const storeKey = target.constructor;

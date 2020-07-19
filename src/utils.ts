@@ -1,5 +1,5 @@
 import { StoreItemOptions, StoreItemType, BasicClass } from './typing';
-import store from './store';
+import store, { keyStores, originalKeyStores } from './store';
 
 export const isNull = (val: any) => val === null;
 
@@ -9,6 +9,10 @@ export const isNullOrUndefined = (val: any) => isNull(val) || isUndefined(val);
 
 export const getOriginalKetStore = <T>(Clazz: BasicClass<T>) => {
   let curLayer = Clazz;
+  const cacheOriginalKeyStore = originalKeyStores.get(curLayer);
+  if (cacheOriginalKeyStore) {
+    return cacheOriginalKeyStore;
+  }
   const originalKeyStore = new Map<string, StoreItemOptions[]>();
   while (curLayer.name && curLayer.prototype) {
     const { constructor } = curLayer.prototype;
@@ -31,10 +35,15 @@ export const getOriginalKetStore = <T>(Clazz: BasicClass<T>) => {
     }
     curLayer = Object.getPrototypeOf(constructor);
   }
+  originalKeyStores.set(Clazz, originalKeyStore);
   return originalKeyStore;
 };
 
 export const getKeyStore = <T>(Clazz: BasicClass<T>) => {
+  const cacheKeyStore = keyStores.get(Clazz);
+  if (cacheKeyStore) {
+    return cacheKeyStore;
+  }
   const keyStore = new Map<string, StoreItemType>();
   const originalKeyStore = getOriginalKetStore(Clazz);
   originalKeyStore.forEach(storeItems => {
@@ -54,5 +63,6 @@ export const getKeyStore = <T>(Clazz: BasicClass<T>) => {
       keyStore.set(hasStoreItem.key, hasStoreItem);
     }
   });
+  keyStores.set(Clazz, keyStore);
   return keyStore;
 };

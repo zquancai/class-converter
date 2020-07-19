@@ -1,6 +1,6 @@
 // eslint-disable-next-line max-classes-per-file
 import assert from 'assert';
-import { mockStore } from './fixtures';
+import { mockStore, mockOriginalKeyStores, mockKeyStores } from './fixtures';
 import { getOriginalKetStore, getKeyStore, isNull, isNullOrUndefined, isUndefined } from '../src/utils';
 
 describe('utils', () => {
@@ -19,12 +19,11 @@ describe('utils', () => {
     });
   });
 
-  describe('getOriginalKetStore', () => {
-    class BaseModel {}
-
-    class TestModel extends BaseModel {}
-
+  describe('getOriginalKeyStore', () => {
     it('normal', () => {
+      class BaseModel {}
+
+      class TestModel extends BaseModel {}
       const mock = mockStore([
         {
           clazz: TestModel,
@@ -85,6 +84,8 @@ describe('utils', () => {
     });
 
     it('extends an non-model class', () => {
+      class BaseModel {}
+      class TestModel extends BaseModel {}
       const mock = mockStore([
         {
           clazz: TestModel,
@@ -109,14 +110,36 @@ describe('utils', () => {
       assert.deepEqual(res, expacted);
       mock.restore();
     });
+
+    it('get original key store from cache', () => {
+      class TestModel {}
+      const originalKeyStores = new Map();
+      const testOriginalKeyStore = new Map();
+      testOriginalKeyStore.set('n', [
+        {
+          key: 'name',
+          originalKey: 'n',
+        },
+      ]);
+      originalKeyStores.set(TestModel, testOriginalKeyStore);
+      const mock = mockOriginalKeyStores(originalKeyStores);
+      const res = getOriginalKetStore(TestModel);
+      const expacted = new Map();
+      expacted.set('n', [
+        {
+          key: 'name',
+          originalKey: 'n',
+        },
+      ]);
+      assert.deepEqual(res, expacted);
+      mock.restore();
+    });
   });
 
   describe('getKeyStore', () => {
-    class BaseModel {}
-
-    class TestModel extends BaseModel {}
-
     it('normal', () => {
+      class BaseModel {}
+      class TestModel extends BaseModel {}
       const mock = mockStore([
         {
           clazz: TestModel,
@@ -163,6 +186,8 @@ describe('utils', () => {
     });
 
     it('extends an non-model class', () => {
+      class BaseModel {}
+      class TestModel extends BaseModel {}
       const mock = mockStore([
         {
           clazz: TestModel,
@@ -187,6 +212,8 @@ describe('utils', () => {
     });
 
     it('no-one contain a serializeTarget => error', () => {
+      class BaseModel {}
+      class TestModel extends BaseModel {}
       const mock = mockStore([
         {
           clazz: TestModel,
@@ -215,6 +242,8 @@ describe('utils', () => {
     });
 
     it('more than one contain a serializeTarget => error', () => {
+      class BaseModel {}
+      class TestModel extends BaseModel {}
       const serializer = () => '';
       const mock = mockStore([
         {
@@ -259,6 +288,8 @@ describe('utils', () => {
     });
 
     it('only one contain a serializeTarget', () => {
+      class BaseModel {}
+      class TestModel extends BaseModel {}
       const serializer1 = () => 1;
       const serializer2 = () => 2;
       const mock = mockStore([
@@ -301,6 +332,26 @@ describe('utils', () => {
         originalKey: 'e',
         serializeTarget: true,
         serializer: serializer2,
+      });
+      assert.deepEqual(res, expacted);
+      mock.restore();
+    });
+
+    it('get key store from cache', () => {
+      class TestModel {}
+      const keyStores = new Map();
+      const testKeyStore = new Map();
+      testKeyStore.set('name', {
+        key: 'name',
+        originalKey: 'n',
+      });
+      keyStores.set(TestModel, testKeyStore);
+      const mock = mockKeyStores(keyStores);
+      const res = getKeyStore(TestModel);
+      const expacted = new Map();
+      expacted.set('name', {
+        key: 'name',
+        originalKey: 'n',
       });
       assert.deepEqual(res, expacted);
       mock.restore();

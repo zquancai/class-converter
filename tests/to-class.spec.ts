@@ -13,7 +13,7 @@ describe('to-class', () => {
     class EventModel {}
 
     it('normal', () => {
-      const mock = ImportMock.mockFunction(utils, 'getOriginalKetStore').callsFake(Clazz => {
+      const mock = ImportMock.mockFunction(utils, 'getOriginalKeyStore').callsFake(Clazz => {
         const originalKeyStore = new Map();
         if (Clazz === TestModel) {
           originalKeyStore.set('i', [
@@ -51,8 +51,6 @@ describe('to-class', () => {
           originalKeyStore.set('e', [
             {
               key: 'events',
-              array: true,
-              dimension: 1,
               originalKey: 'e',
               targetClass: EventModel,
             },
@@ -60,8 +58,6 @@ describe('to-class', () => {
           originalKeyStore.set('ee', [
             {
               key: 'twoDimensionalEvents',
-              array: true,
-              dimension: 2,
               originalKey: 'ee',
               targetClass: EventModel,
             },
@@ -124,7 +120,7 @@ describe('to-class', () => {
     });
 
     it('allow/disallow ignore beforeDeserializer/deserializer', () => {
-      const mock = ImportMock.mockFunction(utils, 'getOriginalKetStore').callsFake(() => {
+      const mock = ImportMock.mockFunction(utils, 'getOriginalKeyStore').callsFake(() => {
         const originalKeyStore = new Map();
         originalKeyStore.set('dp', [
           {
@@ -181,7 +177,7 @@ describe('to-class', () => {
     });
 
     it('original value is undefined', () => {
-      const mock = ImportMock.mockFunction(utils, 'getOriginalKetStore').callsFake(() => {
+      const mock = ImportMock.mockFunction(utils, 'getOriginalKeyStore').callsFake(() => {
         const originalKeyStore = new Map();
         originalKeyStore.set('i', [
           {
@@ -202,7 +198,7 @@ describe('to-class', () => {
     });
 
     it('original value is null', () => {
-      const mock = ImportMock.mockFunction(utils, 'getOriginalKetStore').callsFake(() => {
+      const mock = ImportMock.mockFunction(utils, 'getOriginalKeyStore').callsFake(() => {
         const originalKeyStore = new Map();
         originalKeyStore.set('i', [
           {
@@ -223,7 +219,7 @@ describe('to-class', () => {
     });
 
     it('original value is null but distinguishNullAndUndefined equal true', () => {
-      const mock = ImportMock.mockFunction(utils, 'getOriginalKetStore').callsFake(() => {
+      const mock = ImportMock.mockFunction(utils, 'getOriginalKeyStore').callsFake(() => {
         const originalKeyStore = new Map();
         originalKeyStore.set('i', [
           {
@@ -247,7 +243,7 @@ describe('to-class', () => {
     class TestModel {}
 
     it('normal', () => {
-      const mock = ImportMock.mockFunction(utils, 'getOriginalKetStore').callsFake(() => {
+      const mock = ImportMock.mockFunction(utils, 'getOriginalKeyStore').callsFake(() => {
         const originalKeyStore = new Map();
         originalKeyStore.set('n', [
           {

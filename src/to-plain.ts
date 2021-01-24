@@ -2,17 +2,20 @@ import isArray from 'isarray';
 import { getKeyStore, isUndefined, isNullOrUndefined } from './utils';
 import { JosnType, BasicClass, StoreItemType, ToPlainOptions } from './typing';
 
-const classToObject = <T>(
-  keyStore: Map<string, StoreItemType>,
-  instance: JosnType,
-  Clazz: BasicClass<T>,
-  options: ToPlainOptions,
-): JosnType => {
+export const arrayItemToObject = <T>(arrayVal: any[], Clazz: BasicClass<T>, options: ToPlainOptions): any => {
+  return arrayVal.map((v: any) =>
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    isArray(v) ? arrayItemToObject(v, Clazz, options) : classToObject(v, Clazz, options),
+  );
+};
+
+const classToObject = <T>(instance: JosnType, Clazz: BasicClass<T>, options: ToPlainOptions): JosnType => {
   const obj: JosnType = {};
+  const keyStore = getKeyStore(Clazz);
   keyStore.forEach((propertiesOption: StoreItemType, key: keyof JosnType) => {
     const isValueNotExist = options.distinguishNullAndUndefined ? isUndefined : isNullOrUndefined;
     const instanceValue = isValueNotExist(instance[key]) ? propertiesOption.default : instance[key];
-    const { originalKey, afterSerializer, serializer, targetClass, optional, array, dimension } = propertiesOption;
+    const { originalKey, afterSerializer, serializer, targetClass, optional } = propertiesOption;
     const disallowIgnoreSerializer = propertiesOption.disallowIgnoreSerializer || !options.ignoreSerializer;
     const disallowIgnoreAfterSerializer =
       propertiesOption.disallowIgnoreAfterSerializer || !options.ignoreAfterSerializer;
@@ -26,14 +29,8 @@ const classToObject = <T>(
     let value =
       serializer && disallowIgnoreSerializer ? serializer(instanceValue, instance, obj, options) : instanceValue;
     if (value && targetClass) {
-      if (array) {
-        if (dimension === 1) {
-          // eslint-disable-next-line @typescript-eslint/no-use-before-define
-          value = toPlains(value, targetClass, options);
-        } else {
-          // eslint-disable-next-line @typescript-eslint/no-use-before-define
-          value = value.map((cur: any) => toPlains(cur, targetClass, options));
-        }
+      if (isArray(value)) {
+        value = arrayItemToObject(value, targetClass, options);
       } else {
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
         value = toPlain(value, targetClass, options);
@@ -49,10 +46,9 @@ export const toPlains = <T>(instances: (T | JosnType)[], Clazz: BasicClass<T>, o
   if (!isArray(instances)) {
     throw new Error(`${Clazz} instances must be an array`);
   }
-  const keyStore = getKeyStore(Clazz);
-  return instances.map((item: JosnType) => classToObject<T>(keyStore, item, Clazz, options));
+  return instances.map((item: JosnType) => classToObject<T>(item, Clazz, options));
 };
 
 export const toPlain = <T>(instance: T | JosnType, Clazz: BasicClass<T>, options: ToPlainOptions = {}): any => {
-  return classToObject<T>(getKeyStore(Clazz), instance, Clazz, options);
+  return classToObject<T>(instance, Clazz, options);
 };

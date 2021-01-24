@@ -13,8 +13,6 @@ export type StoreItemType = {
   autoTypeDetection?: boolean;
   optional?: boolean;
   serializeTarget?: boolean;
-  array?: boolean;
-  dimension?: DimensionRange;
 };
 
 export type StoreItemOptions = StoreItemType & {
@@ -26,8 +24,6 @@ export type BasicClass<T = any> = {
 };
 
 export type JosnType = { [key: string]: any };
-
-export type DimensionRange = 1 | 2;
 
 export interface ToClassOptions {
   ignoreDeserializer?: boolean;

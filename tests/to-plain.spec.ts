@@ -39,15 +39,11 @@ describe('to-plain', () => {
           });
           keyStore.set('events', {
             key: 'events',
-            array: true,
-            dimension: 1,
             originalKey: 'e',
             targetClass: EventModel,
           });
           keyStore.set('twoDimensionalEvents', {
             key: 'twoDimensionalEvents',
-            array: true,
-            dimension: 2,
             originalKey: 'ee',
             targetClass: EventModel,
           });

@@ -1,5 +1,5 @@
 import { setStore } from './store';
-import { DimensionRange, StoreItemType, StoreItemOptions } from './typing';
+import { StoreItemType, StoreItemOptions } from './typing';
 
 export function serialize(serializer: StoreItemType['serializer'], disallowIgnore = false) {
   return (target: any, propertyKey: string) => {
@@ -80,16 +80,6 @@ export function optional() {
     setStore(target, {
       key: propertyKey,
       optional: true,
-    });
-  };
-}
-
-export function array(dimension: DimensionRange = 1) {
-  return (target: any, propertyKey: string) => {
-    setStore(target, {
-      key: propertyKey,
-      array: true,
-      dimension,
     });
   };
 }

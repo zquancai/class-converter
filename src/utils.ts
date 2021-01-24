@@ -7,7 +7,7 @@ export const isUndefined = (val: any) => val === undefined;
 
 export const isNullOrUndefined = (val: any) => isNull(val) || isUndefined(val);
 
-export const getOriginalKetStore = <T>(Clazz: BasicClass<T>) => {
+export const getOriginalKeyStore = <T>(Clazz: BasicClass<T>) => {
   let curLayer = Clazz;
   const cacheOriginalKeyStore = originalKeyStores.get(curLayer);
   if (cacheOriginalKeyStore) {
@@ -45,7 +45,7 @@ export const getKeyStore = <T>(Clazz: BasicClass<T>) => {
     return cacheKeyStore;
   }
   const keyStore = new Map<string, StoreItemType>();
-  const originalKeyStore = getOriginalKetStore(Clazz);
+  const originalKeyStore = getOriginalKeyStore(Clazz);
   originalKeyStore.forEach(storeItems => {
     const [firstStoreItem] = storeItems;
     if (storeItems.length === 1) {

@@ -43,6 +43,9 @@ const userModel = toClass(userRaw, UserModel);
 npm i class-converter --save
 ```
 
+# 更新
+你可以在[这里](CHANGES-zh_CN.md)找到所有的 Breaking 更新
+
 
 # 使用例子
 

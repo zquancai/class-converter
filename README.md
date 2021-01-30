@@ -43,6 +43,9 @@ you can see a more complex example [here](example)
 npm i class-converter --save
 ```
 
+# Changes
+You can click [here](CHANGES.md) to find the details of breaking changes.
+
 # Usage Examples
 
 ## Work with nested object/array
@@ -311,7 +314,7 @@ const model = toClass(
       { i: 2, n: 'n2' },
     ],
   },
-  ArrayModel,
+  OptionalModel,
 );
 // you will get like this
 {
@@ -328,7 +331,7 @@ const model = toPlain(
       { id: 2, name: 'n2' },
     ],
   },
-  ArrayModel,
+  OptionalModel,
 );
 // you will get like this
 {

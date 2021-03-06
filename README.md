@@ -43,6 +43,106 @@ you can see a more complex example [here](example)
 npm i class-converter --save
 ```
 
+# Changes
+You can click [here](CHANGES.md) to find the details of breaking changes.
+
+# Usage Examples
+
+## Work with nested object/array
+
+If you try to convert objects that have nested objects/arrays, you need to provide the type of object. If the value of the property of your object is an array, it will be converted all items in that array to target type automatically.
+
+Example:
+
+```ts
+class NestedModel {
+  @property('e', UserModel)
+  employees: UserModel[];
+
+  @typed(UserModel)
+  @property('u')
+  user: UserModel;
+}
+
+const model = toClass(
+  {
+    e: [
+      { i: 1, n: 'n1' },
+      { i: 2, n: 'n2' },
+    ],
+    u: {
+      i: 1,
+      n: 'name',
+    }
+  },
+  NestedModel,
+);
+// you will get like this
+{
+  employees: [
+    { id: 1, name: 'n1' },
+    { id: 2, name: 'n2' },
+  ],
+  user: {
+    id: 1,
+    name: 'name'
+  }
+}
+
+const model = toPlain(
+  {
+    employees: [
+      { id: 1, name: 'n1' },
+      { id: 2, name: 'n2' },
+    ],
+    user: {
+      id: 1,
+      name: 'name'
+    }
+  },
+  NestedModel,
+);
+// you will get like this
+{
+  e: [
+    { i: 1, n: 'n1' },
+    { i: 2, n: 'n2' },
+  ],
+  u: {
+    i: 1,
+    n: 'name'
+  }
+}
+```
+
+## Additional data conversion
+
+```ts
+import * as moment from 'moment';
+
+export class EduModel {
+  @property('i')
+  id: number;
+
+  @property('crt')
+  @deserialize(value => moment(value).format('YYYY-MM-DD HH:mm:ss'))
+  createTime: string;
+}
+```
+
+## Require for other properties
+
+```ts
+class EmailModel {
+  @property('s')
+  site: string;
+
+  @property('e')
+  @deserialize((value, _instance, origin) => `${value}@${origin.s}`)
+  email: string;
+}
+```
+
 # Methods
 
 ## toClass(raw, clazzType, options?) / toClasses(raws, clazzType, options?)
@@ -109,14 +209,17 @@ const userRaw = toPlain(userModel, UserModel);
 const userRaws = toPlains(userModels, UserModel);
 ```
 
-## Property Decorators
+
+
+
+# All Property Decorators
 
 The order in which these decorator's are invoked during the transformation:
 
 - `toClass/toClasses`: beforeDeserializer => typed(convert to an instance) => deserializer
 - `toPlain/toPlains`: serializer => typed(convert to a object) => afterSerializer
 
-#### property(originalKey?, clazzType?, optional = false)
+## property(originalKey?, clazzType?, optional = false)
 
 Convert a original key to your customized key, like `n => name`
 
@@ -153,7 +256,7 @@ const model = toClass({ i: 234, name: 'property', u: { i: 123, n: 'name' } }, Pr
 }
 ```
 
-### typed(clazzType)
+## typed(clazzType)
 
 Set a target class type to a property, as same as the second parameter of property decorator
 
@@ -179,7 +282,7 @@ const model = toClass({ u: { i: 123, n: 'name' } }, TypedModel);
 }
 ```
 
-### optional()
+## optional()
 
 Set a optional setting to a property, as same as the third parameter of property decorator
 
@@ -203,22 +306,6 @@ const model = toClass({ n: 'name' }, OptionalModel);
 {
   name: 'name';
 }
-```
-
-### array(dimension?)
-
-Only support when use `@property` with a clazzType parameter.
-
-- `dimension` `<Number>` dimension of the array, default 1
-
-Example:
-
-```ts
-class ArrayModel {
-  @array()
-  @property('e', UserModel)
-  employees: UserModel[];
-}
 
 const model = toClass(
   {
@@ -227,7 +314,7 @@ const model = toClass(
       { i: 2, n: 'n2' },
     ],
   },
-  ArrayModel,
+  OptionalModel,
 );
 // you will get like this
 {
@@ -244,7 +331,7 @@ const model = toPlain(
       { id: 2, name: 'n2' },
     ],
   },
-  ArrayModel,
+  OptionalModel,
 );
 // you will get like this
 {
@@ -255,7 +342,7 @@ const model = toPlain(
 }
 ```
 
-### defaultVal(val)
+## defaultVal(val)
 
 set a default value to current property
 
@@ -283,7 +370,7 @@ const raw = toPLain({}, DefaultValModel);
 }
 ```
 
-### serializeTarget()
+## serializeTarget()
 
 use the value of the current property when call `toPlain` function.
 
@@ -313,7 +400,7 @@ const raw = toPlain(
 }
 ```
 
-### beforeDeserialize(beforeDeserializer, disallowIgnoreBeforeDeserializer = false)
+## beforeDeserialize(beforeDeserializer, disallowIgnoreBeforeDeserializer = false)
 
 Convert original value to a target form data, it happened before deserializer
 
@@ -345,7 +432,7 @@ toClass(
 };
 ```
 
-### deserialize(deserializer, disallowIgnoreDeserializer =false)
+## deserialize(deserializer, disallowIgnoreDeserializer =false)
 
 Deserialize original value to customized data, it only support when use `toClass/toClasses`
 
@@ -377,7 +464,7 @@ toClass(
 };
 ```
 
-### serialize(serializer, disallowIgnoreSerializer = false)
+## serialize(serializer, disallowIgnoreSerializer = false)
 
 Serialize customized value to original value, it only support when use `toPlain/toPlains`
 
@@ -409,7 +496,7 @@ toPlain(
 }
 ```
 
-### afterSerialize(afterSerializer, disallowIgnoreAfterSerializer = false)
+## afterSerialize(afterSerializer, disallowIgnoreAfterSerializer = false)
 
 Convert a key/value in instance to a target form data, it happened after serializer only
 

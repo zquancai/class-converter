@@ -8,7 +8,6 @@ import {
   beforeDeserialize,
   afterSerialize,
   serialize,
-  array,
   typed,
   serializeTarget,
   defaultVal,
@@ -113,7 +112,11 @@ describe('decorators', () => {
         () => beforeDeserialize(beforeDeserializer, true)(TestModel, 'id'),
         (targetClass: BasicClass, storeItemOptions: StoreItemOptions) => {
           assert(targetClass === TestModel);
-          assert.deepEqual(storeItemOptions, { beforeDeserializer, key: 'id', disallowIgnoreBeforeDeserializer: true });
+          assert.deepEqual(storeItemOptions, {
+            beforeDeserializer,
+            key: 'id',
+            disallowIgnoreBeforeDeserializer: true,
+          });
         },
       );
     });
@@ -126,7 +129,11 @@ describe('decorators', () => {
         () => afterSerialize(afterSerializer)(TestModel, 'id'),
         (targetClass: BasicClass, storeItemOptions: StoreItemOptions) => {
           assert(targetClass === TestModel);
-          assert.deepEqual(storeItemOptions, { afterSerializer, key: 'id', disallowIgnoreAfterSerializer: false });
+          assert.deepEqual(storeItemOptions, {
+            afterSerializer,
+            key: 'id',
+            disallowIgnoreAfterSerializer: false,
+          });
         },
       );
       testDecorator(
@@ -178,28 +185,6 @@ describe('decorators', () => {
         (targetClass: BasicClass, storeItemOptions: StoreItemOptions) => {
           assert(targetClass === TestModel);
           assert.deepEqual(storeItemOptions, { targetClass: ChildModel, key: 'id' });
-        },
-      );
-    });
-  });
-
-  describe('array', () => {
-    it('normal', () => {
-      testDecorator(
-        () => array()(TestModel, 'id'),
-        (targetClass: BasicClass, storeItemOptions: StoreItemOptions) => {
-          assert(targetClass === TestModel);
-          assert.deepEqual(storeItemOptions, { array: true, dimension: 1, key: 'id' });
-        },
-      );
-    });
-
-    it('other dimension', () => {
-      testDecorator(
-        () => array(2)(TestModel, 'id'),
-        (targetClass: BasicClass, storeItemOptions: StoreItemOptions) => {
-          assert(targetClass === TestModel);
-          assert.deepEqual(storeItemOptions, { array: true, dimension: 2, key: 'id' });
         },
       );
     });

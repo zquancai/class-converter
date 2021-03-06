@@ -43,6 +43,107 @@ const userModel = toClass(userRaw, UserModel);
 npm i class-converter --save
 ```
 
+# 更新
+你可以在[这里](CHANGES-zh_CN.md)找到所有的 Breaking 更新
+
+
+# 使用例子
+
+## 聚合对象或数组
+
+如果你想转换一个聚合对象，需要提供目标类。如果该对象的某个属性值是数组，则会递归该数组的所有元素（不管层级有多深），自动转换为目标类的实例。
+
+列子：
+
+```ts
+class NestedModel {
+  @property('e', UserModel)
+  employees: UserModel[];
+
+  @typed(UserModel)
+  @property('u')
+  user: UserModel;
+}
+
+const model = toClass(
+  {
+    e: [
+      { i: 1, n: 'n1' },
+      { i: 2, n: 'n2' },
+    ],
+    u: {
+      i: 1,
+      n: 'name',
+    }
+  },
+  NestedModel,
+);
+// you will get like this
+{
+  employees: [
+    { id: 1, name: 'n1' },
+    { id: 2, name: 'n2' },
+  ],
+  user: {
+    id: 1,
+    name: 'name'
+  }
+}
+
+const model = toPlain(
+  {
+    employees: [
+      { id: 1, name: 'n1' },
+      { id: 2, name: 'n2' },
+    ],
+    user: {
+      id: 1,
+      name: 'name'
+    }
+  },
+  NestedModel,
+);
+// you will get like this
+{
+  e: [
+    { i: 1, n: 'n1' },
+    { i: 2, n: 'n2' },
+  ],
+  u: {
+    i: 1,
+    n: 'name'
+  }
+}
+```
+
+## 其他数据类型转换
+
+```ts
+import * as moment from 'moment';
+
+export class EduModel {
+  @property('i')
+  id: number;
+
+  @property('crt')
+  @deserialize(value => moment(value).format('YYYY-MM-DD HH:mm:ss'))
+  createTime: string;
+}
+```
+
+## 依赖于其他属性值
+
+```ts
+class EmailModel {
+  @property('s')
+  site: string;
+
+  @property('e')
+  @deserialize((value, _instance, origin) => `${value}@${origin.s}`)
+  email: string;
+}
+```
+
 # 方法
 
 ## toClass(raw, clazzType, options?) / toClasses(raws, clazzType, options?)
@@ -109,14 +210,14 @@ const userRaw = toPlain(userModel, UserModel);
 const userRaws = toPlains(userModels, UserModel);
 ```
 
-## 属性装饰器
+# 属性装饰器
 
 调用不同的方法时，这些装饰器的执行顺序：
 
 - `toClass/toClasses`: beforeDeserializer => typed(映射成一个类实例) => deserializer
 - `toPlain/toPlains`: serializer => typed(映射成一个对象) => afterSerializer
 
-#### property(originalKey?, clazzType?, optional = false)
+## property(originalKey?, clazzType?, optional = false)
 
 将一个 key 映射到另外一个 key，如 `n => name`
 
@@ -153,7 +254,7 @@ const model = toClass({ i: 234, name: 'property', u: { i: 123, n: 'name' } }, Pr
 }
 ```
 
-### typed(clazzType)
+## typed(clazzType)
 
 设置一个目标类的构造器，相当于 property 装饰器的第二个参数
 
@@ -179,7 +280,7 @@ const model = toClass({ u: { i: 123, n: 'name' } }, TypedModel);
 }
 ```
 
-### optional()
+## optional()
 
 设置一个属性为可选，相当于 property 装饰器的第三个参数
 
@@ -205,57 +306,7 @@ const model = toClass({ n: 'name' }, OptionalModel);
 }
 ```
 
-### array(dimension?)
-
-当且仅当设置了 `@property` 装饰器的第二个参数时有效
-
-- `dimension` `<Number>` 数组的维度，默认为 1
-
-示例：
-
-```ts
-class ArrayModel {
-  @array()
-  @property('e', UserModel)
-  employees: UserModel[];
-}
-
-const model = toClass(
-  {
-    e: [
-      { i: 1, n: 'n1' },
-      { i: 2, n: 'n2' },
-    ],
-  },
-  ArrayModel,
-);
-// 你将获得如下数据
-{
-  employees: [
-    { id: 1, name: 'n1' },
-    { id: 2, name: 'n2' },
-  ],
-}
-
-const model = toPlain(
-  {
-    employees: [
-      { id: 1, name: 'n1' },
-      { id: 2, name: 'n2' },
-    ],
-  },
-  ArrayModel,
-);
-// 你将获得如下数据
-{
-  e: [
-    { i: 1, n: 'n1' },
-    { i: 2, n: 'n2' },
-  ],
-}
-```
-
-### defaultVal(val)
+## defaultVal(val)
 
 给当前属性设置默认值
 
@@ -283,7 +334,7 @@ const raw = toPLain({}, DefaultValModel);
 }
 ```
 
-### serializeTarget()
+## serializeTarget()
 
 当调 `toPlain` 进行序列化时，用使用当前数据作为基准
 
@@ -313,7 +364,7 @@ const raw = toPlain(
 }
 ```
 
-### beforeDeserialize(beforeDeserializer, disallowIgnoreBeforeDeserializer = false)
+## beforeDeserialize(beforeDeserializer, disallowIgnoreBeforeDeserializer = false)
 
 在 `@typed` 调用之前调用
 
@@ -345,7 +396,7 @@ toClass(
 };
 ```
 
-### deserialize(deserializer, disallowIgnoreDeserializer =false)
+## deserialize(deserializer, disallowIgnoreDeserializer =false)
 
 将原始对象序列化成自定义的数组格式，仅在调用  `toClass/toClasses` 时可用
 
@@ -377,7 +428,7 @@ toClass(
 };
 ```
 
-### serialize(serializer, disallowIgnoreSerializer = false)
+## serialize(serializer, disallowIgnoreSerializer = false)
 
 自定义属性值的序列化方式，仅当调用 `toPlain/toPlains` 时可用
 
@@ -409,7 +460,7 @@ toPlain(
 }
 ```
 
-### afterSerialize(afterSerializer, disallowIgnoreAfterSerializer = false)
+## afterSerialize(afterSerializer, disallowIgnoreAfterSerializer = false)
 
 Convert a key/value in instance to a target form data, it happened after serializer only
 

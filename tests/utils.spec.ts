@@ -1,7 +1,7 @@
 // eslint-disable-next-line max-classes-per-file
 import assert from 'assert';
 import { mockStore, mockOriginalKeyStores, mockKeyStores } from './fixtures';
-import { getOriginalKetStore, getKeyStore, isNull, isNullOrUndefined, isUndefined } from '../src/utils';
+import { getOriginalKeyStore, getKeyStore, isNull, isNullOrUndefined, isUndefined } from '../src/utils';
 
 describe('utils', () => {
   describe('null & undefined', () => {
@@ -61,7 +61,7 @@ describe('utils', () => {
           ],
         },
       ]);
-      const res = getOriginalKetStore(TestModel);
+      const res = getOriginalKeyStore(TestModel);
       const expacted = new Map();
       expacted.set('i', [
         {
@@ -99,7 +99,7 @@ describe('utils', () => {
           ],
         },
       ]);
-      const res = getOriginalKetStore(TestModel);
+      const res = getOriginalKeyStore(TestModel);
       const expacted = new Map();
       expacted.set('n', [
         {
@@ -123,7 +123,31 @@ describe('utils', () => {
       ]);
       originalKeyStores.set(TestModel, testOriginalKeyStore);
       const mock = mockOriginalKeyStores(originalKeyStores);
-      const res = getOriginalKetStore(TestModel);
+      const res = getOriginalKeyStore(TestModel);
+      const expacted = new Map();
+      expacted.set('n', [
+        {
+          key: 'name',
+          originalKey: 'n',
+        },
+      ]);
+      assert.deepEqual(res, expacted);
+      mock.restore();
+    });
+
+    it('get original key store from cache', () => {
+      class TestModel {}
+      const originalKeyStores = new Map();
+      const testOriginalKeyStore = new Map();
+      testOriginalKeyStore.set('n', [
+        {
+          key: 'name',
+          originalKey: 'n',
+        },
+      ]);
+      originalKeyStores.set(TestModel, testOriginalKeyStore);
+      const mock = mockOriginalKeyStores(originalKeyStores);
+      const res = getOriginalKeyStore(TestModel);
       const expacted = new Map();
       expacted.set('n', [
         {

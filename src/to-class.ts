@@ -1,6 +1,6 @@
 import isArray from 'isarray';
 import { getOriginalKeyStore, isUndefined, isNullOrUndefined } from './utils';
-import { JosnType, StoreItemOptions, BasicClass, ToClassOptions } from './typing';
+import { JsonType, StoreItemOptions, BasicClass, ToClassOptions } from './typing';
 
 export const arrayItemToClass = <T>(arrayVal: any[], Clazz: BasicClass<T>, options: ToClassOptions): any => {
   return arrayVal.map((v: any) =>
@@ -51,7 +51,7 @@ const objectToClass = <T>(jsonObj: Record<string, any>, Clazz: BasicClass<T>, op
   return instance;
 };
 
-export const toClasses = <T>(rawJson: JosnType[], Clazz: BasicClass<T>, options: ToClassOptions = {}): T[] => {
+export const toClasses = <T>(rawJson: JsonType[], Clazz: BasicClass<T>, options: ToClassOptions = {}): T[] => {
   if (!isArray(rawJson)) {
     throw new Error(`rawJson ${rawJson} must be an array`);
   }
@@ -59,7 +59,7 @@ export const toClasses = <T>(rawJson: JosnType[], Clazz: BasicClass<T>, options:
   return rawJson.map((item: object) => objectToClass<T>(item, constructor, options));
 };
 
-export const toClass = <T>(rawJson: JosnType, Clazz: BasicClass<T>, options: ToClassOptions = {}): T => {
+export const toClass = <T>(rawJson: JsonType, Clazz: BasicClass<T>, options: ToClassOptions = {}): T => {
   const { constructor } = Clazz.prototype;
   return objectToClass<T>(rawJson as object, constructor, options);
 };

@@ -150,7 +150,7 @@ class EmailModel {
 
 将一个 json 对象映射成一个类实例
 
-- `raw` / `raws` `<Object|Array<Object>>` 一个 josn 对象或者 json 对象数据
+- `raw` / `raws` `<Object|Array<Object>>` 一个 json 对象或者 json 对象数据
 - `clazzType` `<Class>` 类的构造函数
 - `options?` `<Object>` 配置
   - `ignoreDeserializer` `<Boolean>` 当设置为 true 时，不会调用使用 @deserialize 装饰器配置的方法

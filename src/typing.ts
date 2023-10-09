@@ -23,7 +23,7 @@ export type BasicClass<T = any> = {
   new (...args: any[]): T;
 };
 
-export type JosnType = { [key: string]: any };
+export type JsonType = { [key: string]: any };
 
 export interface ToClassOptions {
   ignoreDeserializer?: boolean;

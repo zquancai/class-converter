@@ -1,6 +1,6 @@
 import isArray from 'isarray';
 import { getKeyStore, isUndefined, isNullOrUndefined } from './utils';
-import { JosnType, BasicClass, StoreItemType, ToPlainOptions } from './typing';
+import { JsonType, BasicClass, StoreItemType, ToPlainOptions } from './typing';
 
 export const arrayItemToObject = <T>(arrayVal: any[], Clazz: BasicClass<T>, options: ToPlainOptions): any => {
   return arrayVal.map((v: any) =>
@@ -9,10 +9,10 @@ export const arrayItemToObject = <T>(arrayVal: any[], Clazz: BasicClass<T>, opti
   );
 };
 
-const classToObject = <T>(instance: JosnType, Clazz: BasicClass<T>, options: ToPlainOptions): JosnType => {
-  const obj: JosnType = {};
+const classToObject = <T>(instance: JsonType, Clazz: BasicClass<T>, options: ToPlainOptions): JsonType => {
+  const obj: JsonType = {};
   const keyStore = getKeyStore(Clazz);
-  keyStore.forEach((propertiesOption: StoreItemType, key: keyof JosnType) => {
+  keyStore.forEach((propertiesOption: StoreItemType, key: keyof JsonType) => {
     const isValueNotExist = options.distinguishNullAndUndefined ? isUndefined : isNullOrUndefined;
     const instanceValue = isValueNotExist(instance[key]) ? propertiesOption.default : instance[key];
     const { originalKey, afterSerializer, serializer, targetClass, optional } = propertiesOption;
@@ -42,13 +42,13 @@ const classToObject = <T>(instance: JosnType, Clazz: BasicClass<T>, options: ToP
   return obj;
 };
 
-export const toPlains = <T>(instances: (T | JosnType)[], Clazz: BasicClass<T>, options: ToPlainOptions = {}): any[] => {
+export const toPlains = <T>(instances: (T | JsonType)[], Clazz: BasicClass<T>, options: ToPlainOptions = {}): any[] => {
   if (!isArray(instances)) {
     throw new Error(`${Clazz} instances must be an array`);
   }
-  return instances.map((item: JosnType) => classToObject<T>(item, Clazz, options));
+  return instances.map((item: JsonType) => classToObject<T>(item, Clazz, options));
 };
 
-export const toPlain = <T>(instance: T | JosnType, Clazz: BasicClass<T>, options: ToPlainOptions = {}): any => {
+export const toPlain = <T>(instance: T | JsonType, Clazz: BasicClass<T>, options: ToPlainOptions = {}): any => {
   return classToObject<T>(instance, Clazz, options);
 };
